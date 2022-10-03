@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  azlyrics:
+    container_name: azlyrics
+    build:
+        context: .
+        dockerfile: Dockerfile
+    volumes:
+      - ./src:/usr/src
+    ports:
+      - "5001:5001"
+    stdin_open: true
+    tty: true
+    environment:
+        - ENVIRONMENT=local
+        - PORT=5001
+        - HOST=0.0.0.0
+        - DEBUG=True
+        - DATABASE_URL=postgresql://user:password@lyrics_db/lyric
+        - AZLYRICS_SEARCH=https://search.azlyrics.com/search.php
+        - AZLYRICS_X_PARAM=db229f8201a5bafca20d77d7ef3004c1c4352da6096bf2cc24af214c8e6a02c4
+
+
+  lyrics_db:
+    container_name: lyrics_db
+    build:
+      dockerfile: Database.Dockerfile
+    restart: always
+    ports:
+      - "5000:5432"
+    volumes:
+        - ./.pgdata:/var/lib/postgresql/data
+    environment:
+        - POSTGRES_USER=user
+        - POSTGRES_PASSWORD=password
+        - POSTGRES_DB=lyric

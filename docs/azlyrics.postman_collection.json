@@ -1,0 +1,232 @@
+{
+	"info": {
+		"_postman_id": "8fe324fa-ccf5-4b91-80e9-eef968eb8217",
+		"name": "azlyrics",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18839277"
+	},
+	"item": [
+		{
+			"name": "Artist",
+			"item": [
+				{
+					"name": "Artists",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{pr1.url}}/artist",
+							"host": [
+								"{{pr1.url}}"
+							],
+							"path": [
+								"artist"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Artists by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{pr1.url}}/artist/10",
+							"host": [
+								"{{pr1.url}}"
+							],
+							"path": [
+								"artist",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fill Artists",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"search_letter\": \"f\"  \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{pr1.url}}/artist/fill-database",
+							"host": [
+								"{{pr1.url}}"
+							],
+							"path": [
+								"artist",
+								"fill-database"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fill Artist Items",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{pr1.url}}/artist/30/fill-database",
+							"host": [
+								"{{pr1.url}}"
+							],
+							"path": [
+								"artist",
+								"30",
+								"fill-database"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Artists Filtered",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"offset\": 5,\n    \"limit\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{pr1.url}}/artist/search-artist",
+							"host": [
+								"{{pr1.url}}"
+							],
+							"path": [
+								"artist",
+								"search-artist"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Album",
+			"item": [
+				{
+					"name": "Albums",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{pr1.url}}/album",
+							"host": [
+								"{{pr1.url}}"
+							],
+							"path": [
+								"album"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Album by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{pr1.url}}/album/56",
+							"host": [
+								"{{pr1.url}}"
+							],
+							"path": [
+								"album",
+								"56"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Song",
+			"item": [
+				{
+					"name": "Song",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{pr1.url}}/song",
+							"host": [
+								"{{pr1.url}}"
+							],
+							"path": [
+								"song"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Song By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{pr1.url}}/song/1",
+							"host": [
+								"{{pr1.url}}"
+							],
+							"path": [
+								"song",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{pr1.url}}/",
+					"host": [
+						"{{pr1.url}}"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
