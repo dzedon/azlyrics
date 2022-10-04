@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from domain.scrapper.services import ScrapperService
+from helper.scrapper import ScrapperService
 from domain.artist.services import ArtistService
 from domain.album.services import AlbumService
 from domain.song.services import SongService
@@ -11,7 +11,7 @@ artist_blueprint = Blueprint('artist', __name__)
 
 @artist_blueprint.route('/fill-database', methods=['POST'])
 def fill_artists():
-    """Fill db with 10 new artists."""
+    """Fill db with 5 artists."""
 
     payload = request.get_json()
 
@@ -30,7 +30,7 @@ def fill_artists():
 
 @artist_blueprint.route('/<int:artist_id>/fill-database', methods=['POST'])
 def fill_artist_items(artist_id):
-    """***"""
+    """Fill db with artist's albums and songs"""
 
     artist_service = ArtistService(artist_repository=artist_repository)
     album_service = AlbumService(album_repository=album_repository)

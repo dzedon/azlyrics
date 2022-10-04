@@ -29,7 +29,7 @@ class ScrapperService:
             artists_results: list with all the artists web page data.
 
         Returns:
-            artists_list: list with 10 artists.
+            artists_list: list with 5 artists.
         """
         logging.info("Filtering artists")
 
@@ -44,7 +44,7 @@ class ScrapperService:
                 new_artist.artist_name = artist_name.group()
                 artist_list.append(new_artist)
 
-        return artist_list[:10]
+        return artist_list[:5]
 
     def _get_artist_albums_and_songs(self, results: list, artist_name: str) -> dict:
         """Filter the artist albums and songs from the web page.
