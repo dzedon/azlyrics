@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 # user
-/.pgdata/
+.pgdata/
 .idea/
