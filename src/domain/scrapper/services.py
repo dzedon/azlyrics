@@ -22,55 +22,66 @@ class ScrapperService:
         self.album_service = album_service
         self.song_service = song_service
 
-    def _artist_generator(self, artists_results: Any) -> ArtistSchema:
-        """***"""
-        for element in artists_results:
-            for artist in element:
-                artist = str(artist)
-                url_name = search("(?<=a\/).*?(?=\.html)", artist)
-                artist_name = search("(?<=>).*?(?=<)", artist)
-                if url_name and artist_name:
-                    new_artist = ArtistSchema()
-                    new_artist.url_name = url_name.group()
-                    new_artist.artist_name = artist_name.group()
-                    yield new_artist
-
-    def _filter_results(self, artists_results: Any) -> list:
+    def _get_artists(self, artists_results: list) -> list:
         """Cleans the artist name.
 
         Args:
-            ***
+            artists_results: list with all the artists web page data.
 
         Returns:
-            ***
+            artists_list: list with 10 artists.
         """
-        artist = self._artist_generator(artists_results=artists_results)
+        logging.info("Filtering artists")
 
         artist_list = []
+        for artist in artists_results:
+            url_name = search("(?<=a\/).*?(?=\.html)", artist)
+            artist_name = search("(?<=>).*?(?=<)", artist)
+            if url_name and artist_name:
+                logger.info("Found an artist.")
+                new_artist = ArtistSchema()
+                new_artist.url_name = url_name.group()
+                new_artist.artist_name = artist_name.group()
+                artist_list.append(new_artist)
 
-        for _ in range(50):
-            artist_list.append(next(artist))
-            if len(artist_list) == 10:
-                return artist_list
+        return artist_list[:10]
 
     def _get_artist_albums_and_songs(self, results: list, artist_name: str) -> dict:
-        """***"""
+        """Filter the artist albums and songs from the web page.
+
+        Args:
+            results: web page data.
+            artist_name: artist name.
+
+        Returns:
+            artist_albums: dictionary with albums and songs.
+        """
+        logging.info("Filtering artist albums and songs")
         artist_albums = {}
-        # TODO: REFACTOR THIS
-        for x in results:
-            for y in x:
-                line = str(y)
-                album = search('(?<=b>").*?(?="<\/b>)', line)
-                if album:
-                    album_name = album.group()
-                    artist_albums[album_name] = []
-                song = search(f"(?<={artist_name}\/).*?(?=\.html)", line)
-                if song:
-                    artist_albums[album_name].append(song.group())
+        for line in results:
+            album = search('(?<=b>").*?(?="<\/b>)', line)
+            if album:
+                logging.info("Found an album.")
+                album_name = album.group()
+                artist_albums[album_name] = []
+            song = search(f"(?<={artist_name}\/).*?(?=\.html)", line)
+            if song:
+                logging.info("Found a song.")
+                artist_albums[album_name].append(song.group())
+
         return artist_albums
 
-    def _retrieve_artist_albums_and_songs_from_url(self, artist: ArtistSchema):
-        """***"""
+    def _retrieve_artist_albums_and_songs_from_url(self, artist: ArtistSchema) -> list:
+        """Retrieves all the artist albums and songs from the web page.
+
+        Args:
+            artist: ArtistSchema object.
+
+        Returns:
+            list with all the artist's albums and songs.
+        """
+        logging.info("Retrieving artist albums and songs from url")
+
         url_name = artist.get('url_name')
 
         artist_url = settings.azlyrics_artist.format(url_name[0], url_name)
@@ -80,57 +91,85 @@ class ScrapperService:
 
         soup = BeautifulSoup(markup=url_response.content, features='html.parser')
 
-        return  soup.find_all(name="div", id="listAlbum")
+        artist_items = soup.find_all(name="div", id="listAlbum")
 
-    def _retrieve_artist_from_url(self, artist_letter: str) -> Any:
-        """***"""
+        return [str(element) for line in artist_items for element in line]
+
+    def _retrieve_artist_from_url(self, artist_letter: str) -> list:
+        """Retrieves all the artists from the web page.
+
+        Args:
+            artist_letter: The letter to search for artists.
+
+        Returns:
+            list with all the artists web page data.
+        """
+        logging.info("Retrieving artists from url")
         az_url = settings.azlyrics_url.format(artist_letter)
 
         url_response = requests.get(url=az_url)
         soup = BeautifulSoup(markup=url_response.content, features='html.parser')
 
-        return soup.find_all(name="div", class_="col-sm-6 text-center artist-col")
+        artists_web = soup.find_all(name="div", class_="col-sm-6 text-center artist-col")
 
-    def fill_artists(self, artist_letter: str):
+        return [str(element) for line in artists_web for element in line]
+
+    def fill_artists(self, artist_letter: str) -> bool:
         """Fill the database with new artists.
 
         Args:
             artist_letter: The letter to search for artists.
 
         Returns:
-            artists: List of ArtistSchema objects.
+            True if the artists were added to the database.
         """
-        logging.info("Retrieving artists from url")
-        results = self._retrieve_artist_from_url(artist_letter=artist_letter)
+        try:
+            results = self._retrieve_artist_from_url(artist_letter=artist_letter)
 
-        logging.info("Filtering artists")
-        filtered_result = self._filter_results(artists_results=results)
+            filtered_result = self._get_artists(artists_results=results)
 
-        artists = self.artist_service.create_multiple_artists(artists=filtered_result)
+            artists = self.artist_service.create_multiple_artists(artists=filtered_result)
 
-        return artists
+        except Exception:
+            logger.exception("Something happened while filling artists.")
+            return False
 
-    def fill_artist_items(self, artist_id: int):
-        """***"""
-        artist = self.artist_service.get_artist_by_id(artist_id=artist_id)
+        return True
 
-        logging.info("Retrieving artist albums and songs from url")
-        results = self._retrieve_artist_albums_and_songs_from_url(artist=artist)
+    def fill_artist_items(self, artist_id: int) -> bool:
+        """Fill the database with new albums and songs from an artist.
 
-        logging.info("Filtering artist albums and songs")
-        artist_albums = self._get_artist_albums_and_songs(
-            results=results, artist_name=artist.get('url_name')
-        )
+        Args:
+            artist_id: artists unique identifier.
 
-        albums = self.album_service.create_multiple_albums(
-            albums=artist_albums.keys(), artist_id=artist.get('id')
-        )
+        returns:
+            True
+        """
+        try:
+            artist = self.artist_service.get_artist_by_id(artist_id=artist_id)
 
-        for album in albums:
-            album_name = album.get('name')
-            album_id = album.get('id')
-            artist_songs = self.song_service.create_multiple_songs(
-                songs=artist_albums.get(album_name), album_id=album_id
+            results = self._retrieve_artist_albums_and_songs_from_url(artist=artist)
+
+            artist_albums = self._get_artist_albums_and_songs(
+                results=results, artist_name=artist.get('url_name')
             )
 
-        return artist
+            albums = self.album_service.create_multiple_albums(
+                albums=artist_albums.keys(), artist_id=artist.get('id')
+            )
+
+            if not albums:
+                logger.info("No albums found.")
+                raise Exception
+
+            for album in albums:
+                album_name = album.get('name')
+                album_id = album.get('id')
+                artist_songs = self.song_service.create_multiple_songs(
+                    songs=artist_albums.get(album_name), album_id=album_id
+                )
+
+        except Exception:
+            logger.exception("Something happened while filling artist items.")
+            return False
+        return True
