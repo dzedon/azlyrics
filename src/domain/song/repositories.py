@@ -1,7 +1,12 @@
+import logging
+from typing import Optional
+
 from database.repositories import OrmRepository
 from domain.song.models import Song
 from domain.song.schemas import SongSchema
-from typing import Optional
+
+
+logger = logging.getLogger("AZ_LYRICS")
 
 class SongRepository(OrmRepository):
 
@@ -27,10 +32,11 @@ class SongRepository(OrmRepository):
             return SongSchema.dump(new_song)
 
         except Exception:
+            logging.exception("Something happened while creating song.")
             return None
 
     def create_multiple_songs(self, songs: list, album_id: int) -> Optional[list[SongSchema]]:
-        """Creates multiple songs.
+        """Creates multiple songs registers.
 
         Args:
             songs: List of SongSchema objects.
@@ -53,6 +59,7 @@ class SongRepository(OrmRepository):
             return SongSchema().dump(new_songs, many=True)
 
         except Exception:
+            logging.exception("Something happened while creating multiple songs for album with id: {album_id}")
             return None
 
     def get_songs(self) -> Optional[list[SongSchema]]:
@@ -67,6 +74,7 @@ class SongRepository(OrmRepository):
             return SongSchema().dump(songs, many=True)
 
         except Exception:
+            logging.exception("Something happened while retrieving all songs.")
             return None
 
     def get_song_by_id(self, song_id: int) -> Optional[SongSchema]:
@@ -84,4 +92,5 @@ class SongRepository(OrmRepository):
             return SongSchema().dump(song)
 
         except Exception:
+            logging.exception(f"Something happened while retrieving song by id: {song_id}.")
             return None

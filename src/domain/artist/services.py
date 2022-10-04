@@ -1,10 +1,5 @@
-import requests
-from bs4 import BeautifulSoup
-from re import search
-from typing import Any
 import logging
 
-from settings import settings
 from domain.artist.schemas import ArtistSchema
 from domain.artist.repositories import ArtistRepository
 
@@ -16,18 +11,26 @@ class ArtistService:
         self.artist_repository = artist_repository
 
     def create_multiple_artists(self, artists: list):
-        """***"""
+        """Creates a new artist register.
+
+        Args:
+            artists: ArtistSchema object.
+
+        Returns:
+            ArtistSchema object.
+        """
+        logging.info("Creating multiple artists.")
         new_artists = self.artist_repository.create_multiple_artists(artists=artists)
 
         return new_artists
 
     def get_artists(self):
-        """Retrieves all artists in the database.
+        """Creates multiple artists registers.
 
         Returns:
             List of ArtistSchema objects.
         """
-
+        logging.info("Retrieving all artists.")
         artists = self.artist_repository.get_artists()
 
         return artists
@@ -41,9 +44,7 @@ class ArtistService:
         Returns:
             artist: ArtistSchema object.
         """
+        logging.info(f"Retrieving artist by id: {artist_id}")
         artist = self.artist_repository.get_artist_by_id(artist_id=artist_id)
 
         return artist
-
-    def get_albums_and_songs(self):
-        pass

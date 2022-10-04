@@ -1,7 +1,11 @@
+from typing import Optional
+import logging
+
 from database.repositories import OrmRepository
 from domain.album.models import Album
 from domain.album.schemas import AlbumSchema
-from typing import Optional
+
+logger = logging.getLogger("AZ_LYRICS")
 
 class AlbumRepository(OrmRepository):
 
@@ -16,7 +20,7 @@ class AlbumRepository(OrmRepository):
         """
         try:
             new_album = Album(
-                name=album.album_name,
+                name=album.name,
                 artist_id=album.artist_id
             )
 
@@ -26,10 +30,11 @@ class AlbumRepository(OrmRepository):
             return AlbumSchema.dump(new_album)
 
         except Exception:
+            logging.info("Something happened while creating a album {album.name}")
             return None
 
     def create_multiple_albums(self, albums: list) -> Optional[list[AlbumSchema]]:
-        """Creates multiple album.
+        """Creates multiple albums registers.
 
         Args:
             albums: List of AlbumSchema objects.
@@ -52,6 +57,7 @@ class AlbumRepository(OrmRepository):
             return AlbumSchema().dump(new_albums, many=True)
 
         except Exception:
+            logging.info("Something happened while creating multiple albums")
             return None
 
     def get_albums(self):
@@ -66,6 +72,7 @@ class AlbumRepository(OrmRepository):
             return AlbumSchema().dump(albums, many=True)
 
         except Exception:
+            logging.info("Something happened while retrieving all albums")
             return None
 
     def get_album_by_id(self, album_id: int) -> Optional[AlbumSchema]:
@@ -83,4 +90,5 @@ class AlbumRepository(OrmRepository):
             return AlbumSchema().dump(album)
 
         except Exception:
+            logging.info(f"Something happened while retrieving album with id: {album_id}")
             return None

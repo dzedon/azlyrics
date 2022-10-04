@@ -12,8 +12,8 @@ from domain.album.services import AlbumService
 from domain.song.services import SongService
 
 
-# TODO: ADD LOGGING
 logger = logging.getLogger("AZ_LYRICS")
+
 
 class ScrapperService:
 
@@ -100,8 +100,10 @@ class ScrapperService:
         Returns:
             artists: List of ArtistSchema objects.
         """
+        logging.info("Retrieving artists from url")
         results = self._retrieve_artist_from_url(artist_letter=artist_letter)
 
+        logging.info("Filtering artists")
         filtered_result = self._filter_results(artists_results=results)
 
         artists = self.artist_service.create_multiple_artists(artists=filtered_result)
@@ -112,8 +114,10 @@ class ScrapperService:
         """***"""
         artist = self.artist_service.get_artist_by_id(artist_id=artist_id)
 
+        logging.info("Retrieving artist albums and songs from url")
         results = self._retrieve_artist_albums_and_songs_from_url(artist=artist)
 
+        logging.info("Filtering artist albums and songs")
         artist_albums = self._get_artist_albums_and_songs(
             results=results, artist_name=artist.get('url_name')
         )
@@ -129,4 +133,4 @@ class ScrapperService:
                 songs=artist_albums.get(album_name), album_id=album_id
             )
 
-        return albums
+        return artist

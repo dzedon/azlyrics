@@ -1,12 +1,16 @@
+from typing import Optional
+import logging
+
 from database.repositories import OrmRepository
 from domain.artist.models import Artist
 from domain.artist.schemas import ArtistSchema
-from typing import Optional
+
+logger = logging.getLogger("AZ_LYRICS")
 
 class ArtistRepository(OrmRepository):
 
     def create_artist(self, artist: ArtistSchema) -> Optional[ArtistSchema]:
-        """Creates a new Artist register.
+        """Creates a new artist register.
 
         Args:
             artist: ArtistSchema object.
@@ -26,10 +30,11 @@ class ArtistRepository(OrmRepository):
             return ArtistSchema.dump(new_artist)
 
         except Exception:
+            logging.exception("Something happened while creating artist.")
             return None
 
     def create_multiple_artists(self, artists: list) -> Optional[list[ArtistSchema]]:
-        """Creates multiple artists.
+        """Creates multiple artists registers.
 
         Args:
             artists: List of ArtistSchema objects.
@@ -52,10 +57,11 @@ class ArtistRepository(OrmRepository):
             return ArtistSchema().dump(new_artists, many=True)
 
         except Exception:
+            logging.info("Something happened while creating multiple artists.")
             return None
 
     def get_artists(self) -> Optional[list[ArtistSchema]]:
-        """Retrieves all artists in the database.
+        """Retrieves all artists.
 
         Returns:
             List of ArtistSchema objects.
@@ -66,6 +72,7 @@ class ArtistRepository(OrmRepository):
             return ArtistSchema().dump(artists, many=True)
 
         except Exception:
+            logging.exception("Something happened while retrieving artists.")
             return []
 
     def get_artist_by_id(self, artist_id: int) -> Optional[ArtistSchema]:
@@ -83,4 +90,5 @@ class ArtistRepository(OrmRepository):
             return ArtistSchema().dump(artist)
 
         except Exception:
+            logging.exception(f"Something happened while retrieving artist by id: {artist_id}.")
             return None

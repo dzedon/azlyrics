@@ -1,4 +1,8 @@
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
 
 class Settings:
     """Main Settings class."""

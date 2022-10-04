@@ -1,14 +1,10 @@
-import requests
-from bs4 import BeautifulSoup
-from re import search
-from typing import Any
+import logging
 
 from settings import settings
 from domain.album.schemas import AlbumSchema
 from domain.album.repositories import AlbumRepository
 
-# TODO: ADD LOGGINS
-# TODO: FILL DOCSTRINGS
+logger = logging.getLogger("AZ_LYRICS")
 
 class AlbumService:
 
@@ -16,13 +12,21 @@ class AlbumService:
         self.album_repository = album_repository
 
     def create_album(self, album: AlbumSchema):
-        """***"""
+        """Creates a new album register.
+
+        Args:
+            album: AlbumSchema object.
+
+        Returns:
+            AlbumSchema object.
+        """
+        logging.info(f"Creating album: {album.name}")
         new_album = self.album_repository.create(album=album)
 
         return new_album
 
     def create_multiple_albums(self, albums: list, artist_id: int):
-        """Creates multiple albums.
+        """Creates multiple albums registers.
 
         Args:
             albums: A list of albums to be created.
@@ -38,18 +42,32 @@ class AlbumService:
             new_album.artist_id = artist_id
             album_list.append(new_album)
 
+        logging.info(f"Creating albums for artist with id: {artist_id}")
         new_albums = self.album_repository.create_multiple_albums(albums=album_list)
 
         return new_albums
 
     def get_albums(self):
-        """***"""
+        """Retrieves all albums.
+
+        Returns:
+            List of AlbumSchema objects.
+        """
+        logging.info("Getting all albums")
         albums = self.album_repository.get_albums()
 
         return albums
 
     def get_album_by_id(self, album_id: int):
-        """***"""
+        """Retrieves an album by its id.
+
+        Args:
+            album_id: album unique identifier.
+
+        Returns:
+            AlbumSchema object.
+        """
+        logging.info(f"Getting album with id: {album_id}")
         album = self.album_repository.get_album_by_id(album_id=album_id)
 
         return album
