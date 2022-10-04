@@ -1,6 +1,5 @@
 import logging
 from re import search
-from typing import Any
 
 from bs4 import BeautifulSoup
 import requests

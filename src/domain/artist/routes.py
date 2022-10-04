@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from helper.scrapper import ScrapperService
+from helper.scrapper.services import ScrapperService
 from domain.artist.services import ArtistService
 from domain.album.services import AlbumService
 from domain.song.services import SongService
