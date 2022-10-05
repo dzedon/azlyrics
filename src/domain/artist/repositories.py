@@ -1,11 +1,14 @@
 from typing import Optional
 import logging
 
+from database.filtering import FILTER_MAP
 from database.repositories import OrmRepository
 from domain.artist.models import Artist
 from domain.artist.schemas import ArtistSchema
+from domain.artist.dataclass import ArtistFilters
 
 logger = logging.getLogger("AZ_LYRICS")
+
 
 class ArtistRepository(OrmRepository):
 
@@ -57,7 +60,7 @@ class ArtistRepository(OrmRepository):
             return ArtistSchema().dump(new_artists, many=True)
 
         except Exception:
-            logging.info("Something happened while creating multiple artists.")
+            logging.exception("Something happened while creating multiple artists.")
             return None
 
     def get_artists(self) -> Optional[list[ArtistSchema]]:
@@ -92,3 +95,36 @@ class ArtistRepository(OrmRepository):
         except Exception:
             logging.exception(f"Something happened while retrieving artist by id: {artist_id}.")
             return None
+
+    def get_artists_filtered(self, filters: list[ArtistFilters]):
+        """"
+        Retrieves artists filtered by params.
+
+        Args:
+            filters: Filters object.
+
+        Returns:
+            *** TODO ***
+        """
+        try:
+            query = self.session.query(Artist)
+
+            for filter_ in filters:
+                operator = FILTER_MAP.get(filter_.operator)
+                field = getattr(Artist, filter_.field)
+
+                query = operator(query=query, field=field, value=filter_.value)
+
+            artists = (
+                query.offset(1).limit(10).all()
+            )
+
+            artist_count = query.count()
+
+            # TODO - RETURN A ARTIST DATACLASS
+            return artists, artist_count
+
+        except Exception:
+            logging.exception("Something happened while retrieving artists filtered.")
+            return []
+

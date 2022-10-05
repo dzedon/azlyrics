@@ -2,6 +2,7 @@ import logging
 
 from domain.song.schemas import SongSchema
 from domain.song.repositories import SongRepository
+from domain.song.dataclass import SongFilters
 
 logger = logging.getLogger("AZ_LYRICS")
 
@@ -62,3 +63,27 @@ class SongService:
         song = self.song_repository.get_song_by_id(song_id=song_id)
 
         return song
+
+    def get_songs_filtered(self, params: dict):
+        """
+        Retrieves songs filtered by params.
+
+        Args:
+            params: dict with filters and orders.
+
+        Returns:
+           ***
+        """
+        try:
+            filters = [SongFilters(**filter_) for filter_ in params.get('filters')]
+
+            logging.info(f"Retrieving artists filtered by: {filters}")
+
+            songs, count = self.song_repository.get_songs_filtered(
+                filters=filters
+            )
+
+            return SongSchema().dump(songs, many=True), count
+
+        except Exception:
+            raise Exception("Something happened while retrieving songs filtered.")

@@ -67,16 +67,12 @@ def get_artist_by_id(artist_id):
     return jsonify({'artist': artist})
 
 
-@artist_blueprint.route('/search-artist', methods=['GET'])
+@artist_blueprint.route('/search-artist', methods=['POST'])
 def get_filtered_artists():
     """Retrieves artists filtered by a search term."""
 
-    # TODO: add pagination and filtering
-
-    payload = request.get_json()
-    offset = payload.get('offset')
-    limit = payload.get('limit')
-
     artists_service = ArtistService(artist_repository=artist_repository)
 
-    raise NotImplementedError
+    artists, count = artists_service.get_artists_filtered(params=request.get_json())
+
+    return jsonify({'artist': artists, 'count': count})

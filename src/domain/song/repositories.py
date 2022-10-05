@@ -1,9 +1,11 @@
 import logging
 from typing import Optional
 
+from database.filtering import FILTER_MAP
 from database.repositories import OrmRepository
 from domain.song.models import Song
 from domain.song.schemas import SongSchema
+from domain.song.dataclass import SongFilters
 
 
 logger = logging.getLogger("AZ_LYRICS")
@@ -94,3 +96,35 @@ class SongRepository(OrmRepository):
         except Exception:
             logging.exception(f"Something happened while retrieving song by id: {song_id}.")
             return None
+
+    def get_songs_filtered(self, filters: list[SongFilters]):
+        """"
+        Retrieves songs filtered by params.
+
+        Args:
+            filters: Filters object.
+
+        Returns:
+            *** TODO ***
+        """
+        try:
+            query = self.session.query(Song)
+
+            for filter_ in filters:
+                operator = FILTER_MAP.get(filter_.operator)
+                field = getattr(Song, filter_.field)
+
+                query = operator(query=query, field=field, value=filter_.value)
+
+            songs = (
+                query.offset(1).limit(10).all()
+            )
+
+            song_count = query.count()
+
+            # TODO - RETURN A SONG DATACLASS
+            return songs, song_count
+
+        except Exception:
+            logging.exception("Something happened while retrieving songs filtered.")
+            return []

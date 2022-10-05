@@ -3,18 +3,10 @@ from typing import Union, Literal
 
 
 @dataclass
-class Artist:
-    """Artist dataclass."""
-    id: int
-    url_name: str
-    artist_name: str
-
-
-@dataclass
-class ArtistFilters:
+class AlbumFilters:
     field: Literal[
         "id",
-        "url_name",
+        "artist_id",
         "name"
     ] = None
     operator: Literal[

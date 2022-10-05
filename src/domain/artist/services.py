@@ -2,6 +2,7 @@ import logging
 
 from domain.artist.schemas import ArtistSchema
 from domain.artist.repositories import ArtistRepository
+from domain.artist.dataclass import Artist, ArtistFilters
 
 logger = logging.getLogger("AZ_LYRICS")
 
@@ -48,3 +49,27 @@ class ArtistService:
         artist = self.artist_repository.get_artist_by_id(artist_id=artist_id)
 
         return artist
+
+    def get_artists_filtered(self, params: dict):
+        """
+        Retrieves artists filtered by params.
+
+        Args:
+            params: dict with filters and orders.
+
+        Returns:
+           ***
+        """
+        try:
+            filters = [ArtistFilters(**filter_) for filter_ in params.get('filters')]
+
+            logging.info(f"Retrieving artists filtered by: {filters}")
+
+            artists, count = self.artist_repository.get_artists_filtered(
+                filters=filters
+            )
+
+            return ArtistSchema().dump(artists, many=True), count
+
+        except Exception:
+            raise Exception("Something happened while retrieving artists filtered.")

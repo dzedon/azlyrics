@@ -1,13 +1,12 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
 from domain.album.services import AlbumService
-from domain.album.repositories import AlbumRepository
 from utils.dependencies import album_repository
 
-albums = Blueprint('album', __name__)
+album_blueprint = Blueprint('album', __name__)
 
 
-@albums.route('', methods=['GET'])
+@album_blueprint.route('', methods=['GET'])
 def get_album():
     """Get all albums."""
 
@@ -17,7 +16,8 @@ def get_album():
 
     return jsonify({'albums': albums})
 
-@albums.route('/<int:album_id>', methods=['GET'])
+
+@album_blueprint.route('/<int:album_id>', methods=['GET'])
 def get_album_by_id(album_id: int):
     """Get album by id."""
 
@@ -26,4 +26,15 @@ def get_album_by_id(album_id: int):
     album = album_service.get_album_by_id(album_id=album_id)
 
     return jsonify({'album': album})
+
+
+@album_blueprint.route('/search-album', methods=['POST'])
+def get_filtered_albums():
+    """Retrieves albums filtered by a search term."""
+
+    album_service = AlbumService(album_repository)
+
+    albums, count = album_service.get_albums_filtered(params=request.get_json())
+
+    return jsonify({'albums': albums, 'count': count})
 

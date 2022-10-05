@@ -1,8 +1,9 @@
 import logging
 
-from settings import settings
 from domain.album.schemas import AlbumSchema
 from domain.album.repositories import AlbumRepository
+from domain.album.dataclass import AlbumFilters
+
 
 logger = logging.getLogger("AZ_LYRICS")
 
@@ -71,3 +72,27 @@ class AlbumService:
         album = self.album_repository.get_album_by_id(album_id=album_id)
 
         return album
+
+    def get_albums_filtered(self, params: dict):
+        """
+        Retrieves albums filtered by params.
+
+        Args:
+            params: dict with filters and orders.
+
+        Returns:
+           ***
+        """
+        try:
+            filters = [AlbumFilters(**filter_) for filter_ in params.get('filters')]
+
+            logging.info(f"Retrieving albums filtered by: {filters}")
+
+            albums, count = self.album_repository.get_albums_filtered(
+                filters=filters
+            )
+
+            return AlbumSchema().dump(albums, many=True), count
+
+        except Exception:
+            raise Exception("Something happened while retrieving albums filtered.")

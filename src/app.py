@@ -4,15 +4,15 @@ from flask import Flask, jsonify
 from datetime import datetime
 
 from domain.artist.routes import artist_blueprint
-from domain.album.routes import albums
-from domain.song.routes import songs
+from domain.album.routes import album_blueprint
+from domain.song.routes import song_blueprint
 from settings import settings
 
 
 app = Flask(__name__)
 app.register_blueprint(blueprint=artist_blueprint, url_prefix='/artist')
-app.register_blueprint(blueprint=albums, url_prefix='/album')
-app.register_blueprint(blueprint=songs, url_prefix='/song')
+app.register_blueprint(blueprint=album_blueprint, url_prefix='/album')
+app.register_blueprint(blueprint=song_blueprint, url_prefix='/song')
 
 
 @app.route('/')

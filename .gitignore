@@ -129,5 +129,7 @@ dmypy.json
 .pyre/
 
 # user
-/.pgdata/
+.pgdata/
 .idea/
+.DS_Store
+.DS_STORE

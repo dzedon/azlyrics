@@ -4,6 +4,9 @@ import logging
 from database.repositories import OrmRepository
 from domain.album.models import Album
 from domain.album.schemas import AlbumSchema
+from domain.album.dataclass import AlbumFilters
+from database.filtering import FILTER_MAP
+
 
 logger = logging.getLogger("AZ_LYRICS")
 
@@ -92,3 +95,35 @@ class AlbumRepository(OrmRepository):
         except Exception:
             logging.info(f"Something happened while retrieving album with id: {album_id}")
             return None
+
+    def get_albums_filtered(self, filters: list[AlbumFilters]):
+        """"
+        Retrieves album filtered by params.
+
+        Args:
+            filters: Filters object.
+
+        Returns:
+            *** TODO ***
+        """
+        try:
+            query = self.session.query(Album)
+
+            for filter_ in filters:
+                operator = FILTER_MAP.get(filter_.operator)
+                field = getattr(Album, filter_.field)
+
+                query = operator(query=query, field=field, value=filter_.value)
+
+            albums = (
+                query.offset(1).limit(10).all()
+            )
+
+            album_count = query.count()
+
+            # TODO - RETURN A ALBUM DATACLASS
+            return albums, album_count
+
+        except Exception:
+            logging.exception("Something happened while retrieving albums filtered.")
+            return []

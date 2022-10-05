@@ -10,7 +10,7 @@
 			"name": "Artist",
 			"item": [
 				{
-					"name": "Artists",
+					"name": "Artist",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -32,13 +32,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{pr1.url}}/artist/10",
+							"raw": "{{pr1.url}}/artist/70",
 							"host": [
 								"{{pr1.url}}"
 							],
 							"path": [
 								"artist",
-								"10"
+								"70"
 							]
 						}
 					},
@@ -51,7 +51,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n \"search_letter\": \"f\"  \n}",
+							"raw": "{\n \"search_letter\": \"b\"  \n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -86,13 +86,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{pr1.url}}/artist/30/fill-database",
+							"raw": "{{pr1.url}}/artist/10/fill-database",
 							"host": [
 								"{{pr1.url}}"
 							],
 							"path": [
 								"artist",
-								"30",
+								"10",
 								"fill-database"
 							]
 						}
@@ -101,15 +101,12 @@
 				},
 				{
 					"name": "Artists Filtered",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
-						"method": "GET",
+						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"offset\": 5,\n    \"limit\": 10\n}",
+							"raw": "{\n    \"filters\": [\n        {\n            \"field\": \"url_name\",\n            \"operator\": \"like\",\n            \"value\": \"a\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -135,7 +132,7 @@
 			"name": "Album",
 			"item": [
 				{
-					"name": "Albums",
+					"name": "Album",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -157,13 +154,40 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{pr1.url}}/album/56",
+							"raw": "{{pr1.url}}/album/1",
 							"host": [
 								"{{pr1.url}}"
 							],
 							"path": [
 								"album",
-								"56"
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Artists Filtered Copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filters\": [\n        {\n            \"field\": \"name\",\n            \"operator\": \"like\",\n            \"value\": \"a\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{pr1.url}}/album/search-album",
+							"host": [
+								"{{pr1.url}}"
+							],
+							"path": [
+								"album",
+								"search-album"
 							]
 						}
 					},
@@ -192,18 +216,45 @@
 					"response": []
 				},
 				{
-					"name": "Song By Id",
+					"name": "Song  Filtered",
 					"request": {
-						"method": "GET",
+						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filters\": [\n        {\n            \"field\": \"name\",\n            \"operator\": \"like\",\n            \"value\": \"b\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{pr1.url}}/song/1",
+							"raw": "{{pr1.url}}/song/search-song",
 							"host": [
 								"{{pr1.url}}"
 							],
 							"path": [
 								"song",
-								"1"
+								"search-song"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Song By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{pr1.url}}/song/199",
+							"host": [
+								"{{pr1.url}}"
+							],
+							"path": [
+								"song",
+								"199"
 							]
 						}
 					},
