@@ -4,6 +4,7 @@ from helper.scrapper.services import ScrapperService
 from domain.artist.services import ArtistService
 from domain.album.services import AlbumService
 from domain.song.services import SongService
+from domain.artist.schemas import ArtistSchema, ArtistFiltersSchema
 from utils.dependencies import artist_repository, album_repository, song_repository
 
 artist_blueprint = Blueprint('artist', __name__)
@@ -52,8 +53,9 @@ def get_artists():
     artists_service = ArtistService(artist_repository=artist_repository)
 
     artists = artists_service.get_artists()
+    results = [ArtistSchema().dump(artist) for artist in artists]
 
-    return jsonify({'artist': artists})
+    return jsonify({'artist': results})
 
 
 @artist_blueprint.route('/<int:artist_id>', methods=['GET'])
@@ -63,16 +65,21 @@ def get_artist_by_id(artist_id):
     artists_service = ArtistService(artist_repository=artist_repository)
 
     artist = artists_service.get_artist_by_id(artist_id=artist_id)
+    result = ArtistSchema().dump(artist)
 
-    return jsonify({'artist': artist})
+    return jsonify({'artist': result})
 
 
-@artist_blueprint.route('/search-artist', methods=['POST'])
+@artist_blueprint.route('/search-artist', methods=['GET'])
 def get_filtered_artists():
-    """Retrieves artists filtered by a search term."""
+    """Retrieves artists filtered by a search field."""
+
+    filters = ArtistFiltersSchema().load(request.args)
 
     artists_service = ArtistService(artist_repository=artist_repository)
 
-    artists, count = artists_service.get_artists_filtered(params=request.get_json())
+    artists, count = artists_service.get_artists_filtered(filters=filters)
 
-    return jsonify({'artist': artists, 'count': count})
+    results = [ArtistSchema().dump(artist) for artist in artists]
+
+    return jsonify({'artists': results, 'count': count, "offset": filters.offset, "limit": filters.limit})

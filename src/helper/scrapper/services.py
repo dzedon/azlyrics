@@ -9,7 +9,7 @@ from domain.artist.services import ArtistService
 from domain.artist.schemas import ArtistSchema
 from domain.album.services import AlbumService
 from domain.song.services import SongService
-
+from domain.artist.data import ArtistData
 
 logger = logging.getLogger("AZ_LYRICS")
 
@@ -21,26 +21,31 @@ class ScrapperService:
         self.album_service = album_service
         self.song_service = song_service
 
-    def _get_artists(self, artists_results: list) -> list:
+    def _get_artists(self, artists_results: list) -> list[ArtistData]:
         """Cleans the artist name.
 
         Args:
             artists_results: list with all the artists web page data.
 
         Returns:
-            artists_list: list with 5 artists.
+            artists_list: list with 5 ArtistData objects.
         """
         logging.info("Filtering artists")
 
         artist_list = []
         for artist in artists_results:
+
             url_name = search("(?<=a\/).*?(?=\.html)", artist)
             artist_name = search("(?<=>).*?(?=<)", artist)
+
             if url_name and artist_name:
+
                 logger.info("Found an artist.")
-                new_artist = ArtistSchema()
-                new_artist.url_name = url_name.group()
-                new_artist.artist_name = artist_name.group()
+                new_artist = ArtistData(
+                    url_name=url_name.group(),
+                    name=artist_name.group()
+                )
+
                 artist_list.append(new_artist)
 
         return artist_list[:5]
@@ -70,7 +75,7 @@ class ScrapperService:
 
         return artist_albums
 
-    def _retrieve_artist_albums_and_songs_from_url(self, artist: ArtistSchema) -> list:
+    def _get_artist_albums_and_songs_from_url(self, artist: ArtistSchema) -> list:
         """Retrieves all the artist albums and songs from the web page.
 
         Args:
@@ -94,7 +99,7 @@ class ScrapperService:
 
         return [str(element) for line in artist_items for element in line]
 
-    def _retrieve_artist_from_url(self, artist_letter: str) -> list:
+    def _get_artist_from_url(self, artist_letter: str) -> list:
         """Retrieves all the artists from the web page.
 
         Args:
@@ -123,7 +128,7 @@ class ScrapperService:
             True if the artists were added to the database.
         """
         try:
-            results = self._retrieve_artist_from_url(artist_letter=artist_letter)
+            results = self._get_artist_from_url(artist_letter=artist_letter)
 
             filtered_result = self._get_artists(artists_results=results)
 
@@ -147,7 +152,7 @@ class ScrapperService:
         try:
             artist = self.artist_service.get_artist_by_id(artist_id=artist_id)
 
-            results = self._retrieve_artist_albums_and_songs_from_url(artist=artist)
+            results = self._get_artist_albums_and_songs_from_url(artist=artist)
 
             artist_albums = self._get_artist_albums_and_songs(
                 results=results, artist_name=artist.get('url_name')

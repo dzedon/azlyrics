@@ -1,14 +1,22 @@
 from dataclasses import dataclass
 from typing import Union, Literal
+from datetime import datetime
+import inspect
 
 
 @dataclass
-class Artist:
+class ArtistData:
     """Artist dataclass."""
-    id: int
     url_name: str
-    artist_name: str
+    name: str
+    id: int = None
 
+    @classmethod
+    def from_dict(cls, env):
+        return cls(**{
+            k: v for k, v in env.items()
+            if k in inspect.signature(cls).parameters
+        })
 
 @dataclass
 class ArtistFilters:
@@ -31,3 +39,5 @@ class ArtistFilters:
         "not_in",
     ] = None
     value: Union[str, int] = None
+    offset: int = 0
+    limit: int = 50

@@ -6,6 +6,7 @@ from domain.song.dataclass import SongFilters
 
 logger = logging.getLogger("AZ_LYRICS")
 
+
 class SongService:
 
     def __init__(self, song_repository: SongRepository):

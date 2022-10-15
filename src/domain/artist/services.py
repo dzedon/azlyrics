@@ -2,7 +2,7 @@ import logging
 
 from domain.artist.schemas import ArtistSchema
 from domain.artist.repositories import ArtistRepository
-from domain.artist.dataclass import Artist, ArtistFilters
+from domain.artist.data import ArtistData, ArtistFilters
 
 logger = logging.getLogger("AZ_LYRICS")
 
@@ -25,51 +25,52 @@ class ArtistService:
 
         return new_artists
 
-    def get_artists(self):
-        """Creates multiple artists registers.
+    def get_artists(self) -> ArtistData:
+        """Retrieves multiple artists registers.
 
         Returns:
-            List of ArtistSchema objects.
+            artists: List of ArtistData objects.
         """
         logging.info("Retrieving all artists.")
         artists = self.artist_repository.get_artists()
 
         return artists
 
-    def get_artist_by_id(self, artist_id: int) -> ArtistSchema:
+    def get_artist_by_id(self, artist_id: int) -> ArtistData:
         """Retrieves an artist by its id.
 
         Args:
             artist_id: artist's unique identifier.
 
         Returns:
-            artist: ArtistSchema object.
+            ArtistData object.
         """
         logging.info(f"Retrieving artist by id: {artist_id}")
         artist = self.artist_repository.get_artist_by_id(artist_id=artist_id)
 
+        if not artist:
+            raise Exception(f"Artist id: {artist_id} not found.")
+
         return artist
 
-    def get_artists_filtered(self, params: dict):
-        """
-        Retrieves artists filtered by params.
+    def get_artists_filtered(self, filters: list) -> [ArtistData, int]:
+        """Retrieves artists filtered by params.
 
         Args:
-            params: dict with filters and orders.
+            filters: list with filters and orders.
 
         Returns:
-           ***
+            artists: List of ArtistData objects
+            count: total number of registers.
         """
         try:
-            filters = [ArtistFilters(**filter_) for filter_ in params.get('filters')]
-
             logging.info(f"Retrieving artists filtered by: {filters}")
 
             artists, count = self.artist_repository.get_artists_filtered(
                 filters=filters
             )
 
-            return ArtistSchema().dump(artists, many=True), count
+            return artists, count
 
         except Exception:
             raise Exception("Something happened while retrieving artists filtered.")
