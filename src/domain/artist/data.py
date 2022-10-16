@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Union, Literal
-from datetime import datetime
+
 import inspect
 
 
@@ -19,7 +19,8 @@ class ArtistData:
         })
 
 @dataclass
-class ArtistFilters:
+class ArtistFiltersData:
+    """Artist filters dataclass."""
     field: Literal[
         "id",
         "url_name",

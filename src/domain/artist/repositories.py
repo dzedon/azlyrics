@@ -5,9 +5,7 @@ from database.filtering import FILTER_MAP
 from database.repositories import OrmRepository
 from domain.artist.models import Artist
 from domain.artist.schemas import ArtistSchema
-from domain.artist.data import ArtistFilters, ArtistData
-
-from marshmallow import INCLUDE, EXCLUDE
+from domain.artist.data import ArtistFiltersData, ArtistData
 
 logger = logging.getLogger("AZ_LYRICS")
 
@@ -32,7 +30,7 @@ class ArtistRepository(OrmRepository):
                 for artist in artists
             ]
 
-            self.session.add_all(new_artists)
+            self.session.add_all(new_new_artistsartists)
             self.session.commit()
 
             return [ArtistData.from_dict(artist.__dict__) for artist in artists]
@@ -77,7 +75,7 @@ class ArtistRepository(OrmRepository):
             logging.exception(f"Something happened while retrieving artist by id: {artist_id}.")
             return None
 
-    def get_artists_filtered(self, filters: ArtistFilters) -> [list[ArtistData], int]:
+    def get_artists_filtered(self, filters: ArtistFiltersData) -> [list[ArtistData], int]:
         """Retrieves artists filtered by params.
 
         Args:

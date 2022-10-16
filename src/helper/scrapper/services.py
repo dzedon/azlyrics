@@ -86,7 +86,7 @@ class ScrapperService:
         """
         logging.info("Retrieving artist albums and songs from url")
 
-        url_name = artist.get('url_name')
+        url_name = artist.url_name
 
         artist_url = settings.azlyrics_artist.format(url_name[0], url_name)
         params = {'q': url_name, "x": settings.azlyrics_x_param}
@@ -155,20 +155,21 @@ class ScrapperService:
             results = self._get_artist_albums_and_songs_from_url(artist=artist)
 
             artist_albums = self._get_artist_albums_and_songs(
-                results=results, artist_name=artist.get('url_name')
+                results=results, artist_name=artist.url_name
             )
 
             albums = self.album_service.create_multiple_albums(
-                albums=artist_albums.keys(), artist_id=artist.get('id')
+                albums=artist_albums.keys(), artist_id=artist.id
             )
 
             if not albums:
-                logger.info("No albums found.")
+                logger.exception("No albums found.")
                 raise Exception
 
             for album in albums:
-                album_name = album.get('name')
-                album_id = album.get('id')
+                album_name = album.name
+                album_id = album.id
+
                 artist_songs = self.song_service.create_multiple_songs(
                     songs=artist_albums.get(album_name), album_id=album_id
                 )
@@ -176,4 +177,5 @@ class ScrapperService:
         except Exception:
             logger.exception("Something happened while filling artist items.")
             return False
+
         return True

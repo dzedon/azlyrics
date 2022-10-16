@@ -1,5 +1,5 @@
 from marshmallow import Schema, fields, post_load
-from domain.artist.data import ArtistData, ArtistFilters
+from domain.artist.data import ArtistData, ArtistFiltersData
 from datetime import datetime
 
 class ArtistSchema(Schema):
@@ -14,27 +14,13 @@ class ArtistSchema(Schema):
 
 
 class ArtistFiltersSchema(Schema):
-    # field: Literal["id","url_name","name"] = None
+    """Schema to serialize Artist objects."""
     field = fields.Str(attribute='field')
     operator = fields.Str(attribute='operator')
     value = fields.Str(attribute='value')
     offset = fields.Int(attribute='offset')
     limit = fields.Int(attribute='limit')
-    # operator: Literal[
-    #    "equals",
-    #    "not_equals",
-    #    "greater_than",
-    #    "less_than",
-    #    "less_equals_than",
-    #    "greater_equals_than",
-    #    "like",
-    #    "ilike",
-    #    "not_ilike",
-    #    "in",
-    #    "not_in",
-    # ] = None
-    # value: Union[str, int] = None
 
     @post_load
     def make_artist_filters(self, data, **kwargs):
-        return ArtistFilters(**data)
+        return ArtistFiltersData(**data)

@@ -2,39 +2,46 @@ from flask import Blueprint, jsonify, request
 
 from domain.album.services import AlbumService
 from utils.dependencies import album_repository
+from domain.album.schemas import AlbumSchema, AlbumFiltersSchema
 
 album_blueprint = Blueprint('album', __name__)
 
 
 @album_blueprint.route('', methods=['GET'])
 def get_album():
-    """Get all albums."""
+    """Retrieves all albums."""
 
     album_service = AlbumService(album_repository=album_repository)
 
     albums = album_service.get_albums()
+    results = [AlbumSchema().dump(album) for album in albums]
 
-    return jsonify({'albums': albums})
+    return jsonify({'albums': results})
 
 
 @album_blueprint.route('/<int:album_id>', methods=['GET'])
 def get_album_by_id(album_id: int):
-    """Get album by id."""
+    """Retrieves an album by id."""
 
     album_service = AlbumService(album_repository=album_repository)
 
     album = album_service.get_album_by_id(album_id=album_id)
+    result = AlbumSchema().dump(album)
 
-    return jsonify({'album': album})
+    return jsonify({'album': result})
 
 
-@album_blueprint.route('/search-album', methods=['POST'])
+@album_blueprint.route('/search-album', methods=['GET'])
 def get_filtered_albums():
     """Retrieves albums filtered by a search term."""
+    filters = AlbumFiltersSchema().load(request.args)
 
     album_service = AlbumService(album_repository)
 
-    albums, count = album_service.get_albums_filtered(params=request.get_json())
+    albums, count = album_service.get_albums_filtered(filters=filters)
 
-    return jsonify({'albums': albums, 'count': count})
+    results = [AlbumSchema().dump(album) for album in albums]
+
+    return jsonify({'songs': results, 'count': count, "offset": filters.offset, "limit": filters.limit})
+
 

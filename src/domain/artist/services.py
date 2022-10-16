@@ -1,8 +1,8 @@
 import logging
-
+from typing import Optional
 from domain.artist.schemas import ArtistSchema
 from domain.artist.repositories import ArtistRepository
-from domain.artist.data import ArtistData, ArtistFilters
+from domain.artist.data import ArtistData, ArtistFiltersData
 
 logger = logging.getLogger("AZ_LYRICS")
 
@@ -11,7 +11,7 @@ class ArtistService:
     def __init__(self, artist_repository: ArtistRepository):
         self.artist_repository = artist_repository
 
-    def create_multiple_artists(self, artists: list):
+    def create_multiple_artists(self, artists: list) -> Optional[list[ArtistData]]:
         """Creates a new artist register.
 
         Args:
@@ -25,7 +25,7 @@ class ArtistService:
 
         return new_artists
 
-    def get_artists(self) -> ArtistData:
+    def get_artists(self) -> [Optional[ArtistData]]:
         """Retrieves multiple artists registers.
 
         Returns:
@@ -36,7 +36,7 @@ class ArtistService:
 
         return artists
 
-    def get_artist_by_id(self, artist_id: int) -> ArtistData:
+    def get_artist_by_id(self, artist_id: int) -> Optional[ArtistData]:
         """Retrieves an artist by its id.
 
         Args:
@@ -49,15 +49,17 @@ class ArtistService:
         artist = self.artist_repository.get_artist_by_id(artist_id=artist_id)
 
         if not artist:
-            raise Exception(f"Artist id: {artist_id} not found.")
+            message = f"Artist with id: {artist_id} not found."
+            logging.info(message)
+            raise Exception(message)
 
         return artist
 
-    def get_artists_filtered(self, filters: list) -> [ArtistData, int]:
+    def get_artists_filtered(self, filters: ArtistFiltersData) -> [ArtistData, int]:
         """Retrieves artists filtered by params.
 
         Args:
-            filters: list with filters and orders.
+            filters: ArtistFiltersData object with filters and orders.
 
         Returns:
             artists: List of ArtistData objects

@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from domain.song.services import SongService
 from utils.dependencies import song_repository
+from domain.song.schemas import SongSchema, SongFiltersSchema
 
 song_blueprint = Blueprint('song', __name__)
 
@@ -13,8 +14,9 @@ def get_song():
     song_service = SongService(song_repository)
 
     songs = song_service.get_songs()
+    results = [SongSchema().dump(song) for song in songs]
 
-    return jsonify({'songs': songs})
+    return jsonify({'songs': results})
 
 
 @song_blueprint.route('/<int:song_id>', methods=['GET'])
@@ -24,16 +26,22 @@ def get_song_by_id(song_id):
     song_service = SongService(song_repository)
 
     song = song_service.get_song_by_id(song_id)
+    result = SongSchema().dump(song)
 
-    return jsonify({'song': song})
+    return jsonify({'song': result})
 
 
-@song_blueprint.route('/search-song', methods=['POST'])
+@song_blueprint.route('/search-song', methods=['GET'])
 def get_filtered_songs():
-    """Retrieves songs filtered by a search term."""
+    """Retrieves songs filtered by a search field."""
+
+    filters = SongFiltersSchema().load(request.args)
 
     song_service = SongService(song_repository)
 
-    songs, count = song_service.get_songs_filtered(params=request.get_json())
+    songs, count = song_service.get_songs_filtered(filters=filters)
 
-    return jsonify({'songs': songs, 'count': count})
+    results = [SongSchema().dump(song) for song in songs]
+
+    return jsonify({'songs': results, 'count': count, "offset": filters.offset, "limit": filters.limit})
+

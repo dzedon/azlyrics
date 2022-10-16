@@ -1,9 +1,27 @@
+import inspect
+
 from dataclasses import dataclass
 from typing import Union, Literal
 
 
 @dataclass
-class SongFilters:
+class SongData:
+    """Song dataclass."""
+    name: str
+    album_id: int = None
+    id: int = None
+
+    @classmethod
+    def from_dict(cls, env):
+        return cls(**{
+            k: v for k, v in env.items()
+            if k in inspect.signature(cls).parameters
+        })
+
+
+@dataclass
+class SongFiltersData:
+    """Song filters dataclass."""
     field: Literal[
         "id",
         "album_id",
@@ -23,3 +41,5 @@ class SongFilters:
         "not_in",
     ] = None
     value: Union[str, int] = None
+    offset: int = 0
+    limit: int = 50
