@@ -6,8 +6,8 @@ from database.registries import default_registry
 
 @default_registry.mapped
 class Artist(Identified, Named, TimeStamped):
+    """Artist model."""
 
     __tablename__ = "artist"
 
     url_name = Column(String(50), nullable=False)
-

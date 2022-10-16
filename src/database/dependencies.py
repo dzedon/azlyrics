@@ -1,7 +1,6 @@
 """Defines fastapi dependencies to interact with database."""
 from typing import TypeVar
 
-
 from sqlalchemy import select
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session

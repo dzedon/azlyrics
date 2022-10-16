@@ -1,31 +1,27 @@
-from dataclasses import dataclass
-from typing import Union, Literal
-
 import inspect
+from dataclasses import dataclass
+from typing import Literal, Union
 
 
 @dataclass
 class ArtistData:
     """Artist dataclass."""
+
     url_name: str
     name: str
     id: int = None
 
     @classmethod
     def from_dict(cls, env):
-        return cls(**{
-            k: v for k, v in env.items()
-            if k in inspect.signature(cls).parameters
-        })
+        """Creates a ArtistData object from a dictionary."""
+        return cls(**{k: v for k, v in env.items() if k in inspect.signature(cls).parameters})
+
 
 @dataclass
 class ArtistFiltersData:
     """Artist filters dataclass."""
-    field: Literal[
-        "id",
-        "url_name",
-        "name"
-    ] = None
+
+    field: Literal["id", "url_name", "name"] = None
     operator: Literal[
         "equals",
         "not_equals",

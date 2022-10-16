@@ -3,13 +3,14 @@ from typing import Optional
 
 from database.filtering import FILTER_MAP
 from database.repositories import OrmRepository
-from domain.song.models import Song
 from domain.song.data import SongData, SongFiltersData
+from domain.song.models import Song
 
 logger = logging.getLogger("AZ_LYRICS")
 
 
 class SongRepository(OrmRepository):
+    """Song repository."""
 
     def create_multiple_songs(self, songs: list, album_id: int) -> Optional[list[SongData]]:
         """Creates multiple songs registers.
@@ -23,7 +24,11 @@ class SongRepository(OrmRepository):
         """
         try:
             new_songs = [
-                Song(name=song, album_id=album_id,) for song in songs
+                Song(
+                    name=song,
+                    album_id=album_id,
+                )
+                for song in songs
             ]
 
             self.session.add_all(new_songs)
@@ -32,7 +37,9 @@ class SongRepository(OrmRepository):
             return new_songs
 
         except Exception:
-            logging.exception("Something happened while creating multiple songs for album with id: {album_id}")
+            logging.exception(
+                "Something happened while creating multiple songs for album with id: {album_id}"
+            )
             return None
 
     def get_songs(self) -> Optional[list[SongData]]:
@@ -90,9 +97,7 @@ class SongRepository(OrmRepository):
 
                 query = operator(query=query, field=field, value=filters.value)
 
-            songs = (
-                query.offset(filters.offset).limit(filters.limit).all()
-            )
+            songs = query.offset(filters.offset).limit(filters.limit).all()
 
             song_count = query.count()
 

@@ -1,16 +1,17 @@
 import logging
 from typing import Optional
 
+from database.filtering import FILTER_MAP
 from database.repositories import OrmRepository
+from domain.album.data import AlbumData, AlbumFiltersData
 from domain.album.models import Album
 from domain.album.schemas import AlbumSchema
-from domain.album.data import AlbumFiltersData, AlbumData
-from database.filtering import FILTER_MAP
 
 logger = logging.getLogger("AZ_LYRICS")
 
 
 class AlbumRepository(OrmRepository):
+    """Album Repository."""
 
     def create_multiple_albums(self, albums: list, artist_id: int) -> Optional[list[AlbumData]]:
         """Creates multiple albums registers.
@@ -23,14 +24,12 @@ class AlbumRepository(OrmRepository):
             List of AlbumSchema objects.
         """
         try:
-            new_albums = [
-                Album(name=album, artist_id=artist_id) for album in albums
-            ]
+            new_albums = [Album(name=album, artist_id=artist_id) for album in albums]
 
             self.session.add_all(new_albums)
             self.session.commit()
 
-            # return [AlbumData.from_dict(album.__dict__) for album in new_albums]
+            # return [AlbumData.from_dict(album.__dict__) for album in new_albums] # noqa: E501
             return new_albums
 
         except Exception:
@@ -74,8 +73,7 @@ class AlbumRepository(OrmRepository):
             return None
 
     def get_albums_filtered(self, filters: list[AlbumFiltersData]):
-        """"
-        Retrieves album filtered by params.
+        """Retrieves album filtered by params.
 
         Args:
             filters: AlbumFiltersData object.
@@ -93,9 +91,7 @@ class AlbumRepository(OrmRepository):
 
                 query = operator(query=query, field=field, value=filters.value)
 
-            albums = (
-                query.offset(filters.offset).limit(filters.limit).all()
-            )
+            albums = query.offset(filters.offset).limit(filters.limit).all()
 
             album_count = query.count()
 

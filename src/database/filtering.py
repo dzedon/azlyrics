@@ -1,4 +1,3 @@
-
 FILTER_MAP = {
     "equals": lambda query, field, value: query.filter(field == value),
     "not_equals": lambda query, field, value: query.filter(field != value),

@@ -1,15 +1,17 @@
 import logging
 from typing import Optional
-from domain.song.schemas import SongSchema
-from domain.song.repositories import SongRepository
+
 from domain.song.data import SongData, SongFiltersData
+from domain.song.repositories import SongRepository
 
 logger = logging.getLogger("AZ_LYRICS")
 
 
 class SongService:
+    """Songs service."""
 
     def __init__(self, song_repository: SongRepository):
+        """Initializes the service."""
         self.song_repository = song_repository
 
     def create_multiple_songs(self, songs: list, album_id: int) -> Optional[list[SongData]]:
@@ -70,9 +72,7 @@ class SongService:
         try:
             logging.info(f"Retrieving songs filtered by: {filters}")
 
-            songs, count = self.song_repository.get_songs_filtered(
-                filters=filters
-            )
+            songs, count = self.song_repository.get_songs_filtered(filters=filters)
 
             return songs, count
 

@@ -1,6 +1,6 @@
 from database.session import session
-from domain.artist.repositories import ArtistRepository
 from domain.album.repositories import AlbumRepository
+from domain.artist.repositories import ArtistRepository
 from domain.song.repositories import SongRepository
 
 artist_repository = ArtistRepository(session=next(session()))

@@ -1,16 +1,16 @@
-from typing import Optional
 import logging
+from typing import Optional
 
 from database.filtering import FILTER_MAP
 from database.repositories import OrmRepository
+from domain.artist.data import ArtistData, ArtistFiltersData
 from domain.artist.models import Artist
-from domain.artist.schemas import ArtistSchema
-from domain.artist.data import ArtistFiltersData, ArtistData
 
 logger = logging.getLogger("AZ_LYRICS")
 
 
 class ArtistRepository(OrmRepository):
+    """Repository to manage Artist objects."""
 
     def create_multiple_artists(self, artists: list) -> Optional[list[ArtistData]]:
         """Creates multiple artists registers.
@@ -22,15 +22,9 @@ class ArtistRepository(OrmRepository):
             List of ArtistData objects.
         """
         try:
-            new_artists = [
-                Artist(
-                    name=artist.name,
-                    url_name=artist.url_name
-                )
-                for artist in artists
-            ]
+            new_artists = [Artist(name=artist.name, url_name=artist.url_name) for artist in artists]
 
-            self.session.add_all(new_new_artistsartists)
+            self.session.add_all(new_artists)
             self.session.commit()
 
             return [ArtistData.from_dict(artist.__dict__) for artist in artists]
@@ -94,9 +88,7 @@ class ArtistRepository(OrmRepository):
 
                 query = operator(query=query, field=field, value=filters.value)
 
-            artists = (
-                query.offset(filters.offset).limit(filters.limit).all()
-            )
+            artists = query.offset(filters.offset).limit(filters.limit).all()
 
             artist_count = query.count()
 
@@ -107,4 +99,3 @@ class ArtistRepository(OrmRepository):
         except Exception:
             logging.exception("Something happened while retrieving artists filtered.")
             return []
-

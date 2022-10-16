@@ -1,14 +1,17 @@
 import logging
 from typing import Optional
-from domain.artist.schemas import ArtistSchema
-from domain.artist.repositories import ArtistRepository
+
 from domain.artist.data import ArtistData, ArtistFiltersData
+from domain.artist.repositories import ArtistRepository
 
 logger = logging.getLogger("AZ_LYRICS")
 
+
 class ArtistService:
+    """Artists service."""
 
     def __init__(self, artist_repository: ArtistRepository):
+        """Initializes Artists service."""
         self.artist_repository = artist_repository
 
     def create_multiple_artists(self, artists: list) -> Optional[list[ArtistData]]:
@@ -68,9 +71,7 @@ class ArtistService:
         try:
             logging.info(f"Retrieving artists filtered by: {filters}")
 
-            artists, count = self.artist_repository.get_artists_filtered(
-                filters=filters
-            )
+            artists, count = self.artist_repository.get_artists_filtered(filters=filters)
 
             return artists, count
 

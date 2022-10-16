@@ -1,22 +1,26 @@
 import logging
 from re import search
 
-from bs4 import BeautifulSoup
 import requests
+from bs4 import BeautifulSoup
 
-from settings import settings
-from domain.artist.services import ArtistService
-from domain.artist.schemas import ArtistSchema
 from domain.album.services import AlbumService
-from domain.song.services import SongService
 from domain.artist.data import ArtistData
+from domain.artist.schemas import ArtistSchema
+from domain.artist.services import ArtistService
+from domain.song.services import SongService
+from settings import settings
 
 logger = logging.getLogger("AZ_LYRICS")
 
 
 class ScrapperService:
+    """Scrapper service."""
 
-    def __init__(self, artist_service: ArtistService, album_service: AlbumService, song_service: SongService):
+    def __init__(
+        self, artist_service: ArtistService, album_service: AlbumService, song_service: SongService
+    ):
+        """Initialize the scrapper service."""
         self.artist_service = artist_service
         self.album_service = album_service
         self.song_service = song_service
@@ -35,16 +39,13 @@ class ScrapperService:
         artist_list = []
         for artist in artists_results:
 
-            url_name = search("(?<=a\/).*?(?=\.html)", artist)
-            artist_name = search("(?<=>).*?(?=<)", artist)
+            url_name = search("(?<=a\/).*?(?=\.html)", artist)  # noqa: W605
+            artist_name = search("(?<=>).*?(?=<)", artist)  # noqa: W605
 
             if url_name and artist_name:
 
                 logger.info("Found an artist.")
-                new_artist = ArtistData(
-                    url_name=url_name.group(),
-                    name=artist_name.group()
-                )
+                new_artist = ArtistData(url_name=url_name.group(), name=artist_name.group())
 
                 artist_list.append(new_artist)
 
@@ -63,12 +64,12 @@ class ScrapperService:
         logging.info("Filtering artist albums and songs")
         artist_albums = {}
         for line in results:
-            album = search('(?<=b>").*?(?="<\/b>)', line)
+            album = search('(?<=b>").*?(?="<\/b>)', line)  # noqa: W605
             if album:
                 logging.info("Found an album.")
                 album_name = album.group()
                 artist_albums[album_name] = []
-            song = search(f"(?<={artist_name}\/).*?(?=\.html)", line)
+            song = search(f"(?<={artist_name}\/).*?(?=\.html)", line)  # noqa: W605
             if song:
                 logging.info("Found a song.")
                 artist_albums[album_name].append(song.group())
@@ -89,11 +90,11 @@ class ScrapperService:
         url_name = artist.url_name
 
         artist_url = settings.azlyrics_artist.format(url_name[0], url_name)
-        params = {'q': url_name, "x": settings.azlyrics_x_param}
+        params = {"q": url_name, "x": settings.azlyrics_x_param}
 
         url_response = requests.get(url=artist_url, params=params)
 
-        soup = BeautifulSoup(markup=url_response.content, features='html.parser')
+        soup = BeautifulSoup(markup=url_response.content, features="html.parser")
 
         artist_items = soup.find_all(name="div", id="listAlbum")
 
@@ -112,7 +113,7 @@ class ScrapperService:
         az_url = settings.azlyrics_url.format(artist_letter)
 
         url_response = requests.get(url=az_url)
-        soup = BeautifulSoup(markup=url_response.content, features='html.parser')
+        soup = BeautifulSoup(markup=url_response.content, features="html.parser")
 
         artists_web = soup.find_all(name="div", class_="col-sm-6 text-center artist-col")
 
@@ -132,7 +133,7 @@ class ScrapperService:
 
             filtered_result = self._get_artists(artists_results=results)
 
-            artists = self.artist_service.create_multiple_artists(artists=filtered_result)
+            self.artist_service.create_multiple_artists(artists=filtered_result)
 
         except Exception:
             logger.exception("Something happened while filling artists.")
@@ -146,7 +147,7 @@ class ScrapperService:
         Args:
             artist_id: artists unique identifier.
 
-        returns:
+        Returns:
             True
         """
         try:
@@ -170,7 +171,7 @@ class ScrapperService:
                 album_name = album.name
                 album_id = album.id
 
-                artist_songs = self.song_service.create_multiple_songs(
+                self.song_service.create_multiple_songs(
                     songs=artist_albums.get(album_name), album_id=album_id
                 )
 
