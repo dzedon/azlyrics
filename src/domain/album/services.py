@@ -1,32 +1,20 @@
 import logging
+from typing import Optional
 
-from domain.album.schemas import AlbumSchema
+from domain.album.data import AlbumData, AlbumFiltersData
 from domain.album.repositories import AlbumRepository
-from domain.album.dataclass import AlbumFilters
-
 
 logger = logging.getLogger("AZ_LYRICS")
 
+
 class AlbumService:
+    """Services to manage Album objects."""
 
     def __init__(self, album_repository: AlbumRepository):
+        """Initializes AlbumService."""
         self.album_repository = album_repository
 
-    def create_album(self, album: AlbumSchema):
-        """Creates a new album register.
-
-        Args:
-            album: AlbumSchema object.
-
-        Returns:
-            AlbumSchema object.
-        """
-        logging.info(f"Creating album: {album.name}")
-        new_album = self.album_repository.create(album=album)
-
-        return new_album
-
-    def create_multiple_albums(self, albums: list, artist_id: int):
+    def create_multiple_albums(self, albums: list, artist_id: int) -> Optional[list[AlbumData]]:
         """Creates multiple albums registers.
 
         Args:
@@ -34,32 +22,27 @@ class AlbumService:
             artist_id: The id of the artist to which the albums belong.
 
         Returns:
-            A list of AlbumSchema objects.
+            A list of AlbumData objects.
         """
-        album_list = []
-        for album in albums:
-            new_album = AlbumSchema()
-            new_album.name = album
-            new_album.artist_id = artist_id
-            album_list.append(new_album)
-
         logging.info(f"Creating albums for artist with id: {artist_id}")
-        new_albums = self.album_repository.create_multiple_albums(albums=album_list)
+        new_albums = self.album_repository.create_multiple_albums(
+            albums=albums, artist_id=artist_id
+        )
 
         return new_albums
 
-    def get_albums(self):
+    def get_albums(self) -> Optional[list[AlbumData]]:
         """Retrieves all albums.
 
         Returns:
-            List of AlbumSchema objects.
+            List of AlbumData objects.
         """
         logging.info("Getting all albums")
         albums = self.album_repository.get_albums()
 
         return albums
 
-    def get_album_by_id(self, album_id: int):
+    def get_album_by_id(self, album_id: int) -> Optional[AlbumData]:
         """Retrieves an album by its id.
 
         Args:
@@ -71,28 +54,30 @@ class AlbumService:
         logging.info(f"Getting album with id: {album_id}")
         album = self.album_repository.get_album_by_id(album_id=album_id)
 
+        if not album:
+            message = f"Song with id: {album_id} not found."
+            logging.info(message)
+            raise Exception(message)
+
         return album
 
-    def get_albums_filtered(self, params: dict):
-        """
-        Retrieves albums filtered by params.
+    def get_albums_filtered(self, filters: AlbumFiltersData) -> [list[AlbumData], int]:
+        """Retrieves albums filtered by params.
 
         Args:
-            params: dict with filters and orders.
+            filters: AlbumFiltersData object with filters and orders.
 
         Returns:
-           ***
+            albums: List of AlbumData objects
+            count: total number of registers.
         """
         try:
-            filters = [AlbumFilters(**filter_) for filter_ in params.get('filters')]
 
             logging.info(f"Retrieving albums filtered by: {filters}")
 
-            albums, count = self.album_repository.get_albums_filtered(
-                filters=filters
-            )
+            albums, count = self.album_repository.get_albums_filtered(filters=filters)
 
-            return AlbumSchema().dump(albums, many=True), count
+            return albums, count
 
         except Exception:
             raise Exception("Something happened while retrieving albums filtered.")

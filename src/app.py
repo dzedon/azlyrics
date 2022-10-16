@@ -1,23 +1,22 @@
+from datetime import datetime
 
 from flask import Flask, jsonify
 
-from datetime import datetime
-
-from domain.artist.routes import artist_blueprint
 from domain.album.routes import album_blueprint
+from domain.artist.routes import artist_blueprint
 from domain.song.routes import song_blueprint
 from settings import settings
 
-
 app = Flask(__name__)
-app.register_blueprint(blueprint=artist_blueprint, url_prefix='/artist')
-app.register_blueprint(blueprint=album_blueprint, url_prefix='/album')
-app.register_blueprint(blueprint=song_blueprint, url_prefix='/song')
+app.register_blueprint(blueprint=artist_blueprint, url_prefix="/artist")
+app.register_blueprint(blueprint=album_blueprint, url_prefix="/album")
+app.register_blueprint(blueprint=song_blueprint, url_prefix="/song")
 
 
-@app.route('/')
+@app.route("/")
 def health():
-    return jsonify({'status': 'ok', 'timestamp': datetime.now()})
+    """Health check endpoint."""
+    return jsonify({"status": "ok", "timestamp": datetime.now()})
 
 
 if __name__ == "__main__":

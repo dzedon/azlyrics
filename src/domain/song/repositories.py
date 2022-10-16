@@ -3,48 +3,24 @@ from typing import Optional
 
 from database.filtering import FILTER_MAP
 from database.repositories import OrmRepository
+from domain.song.data import SongData, SongFiltersData
 from domain.song.models import Song
-from domain.song.schemas import SongSchema
-from domain.song.dataclass import SongFilters
-
 
 logger = logging.getLogger("AZ_LYRICS")
 
+
 class SongRepository(OrmRepository):
+    """Song repository."""
 
-    def create_song(self, song: SongSchema) -> Optional[SongSchema]:
-        """Creates a new song register.
-
-        Args:
-            song: SongSchema object.
-
-        Returns:
-            SongSchema object.
-        """
-        try:
-            new_song = Song(
-                name=song.song_name,
-                album_id=song.album_id,
-                artist_id=song.artist_id
-            )
-
-            self.session.add(new_song)
-            self.session.commit()
-
-            return SongSchema.dump(new_song)
-
-        except Exception:
-            logging.exception("Something happened while creating song.")
-            return None
-
-    def create_multiple_songs(self, songs: list, album_id: int) -> Optional[list[SongSchema]]:
+    def create_multiple_songs(self, songs: list, album_id: int) -> Optional[list[SongData]]:
         """Creates multiple songs registers.
 
         Args:
-            songs: List of SongSchema objects.
+            songs: List of SongData objects.
+            album_id: Album unique identifier.
 
         Returns:
-            List of SongSchema objects.
+            List of SongData objects.
         """
         try:
             new_songs = [
@@ -58,71 +34,75 @@ class SongRepository(OrmRepository):
             self.session.add_all(new_songs)
             self.session.commit()
 
-            return SongSchema().dump(new_songs, many=True)
+            return new_songs
 
         except Exception:
-            logging.exception("Something happened while creating multiple songs for album with id: {album_id}")
+            logging.exception(
+                "Something happened while creating multiple songs for album with id: {album_id}"
+            )
             return None
 
-    def get_songs(self) -> Optional[list[SongSchema]]:
+    def get_songs(self) -> Optional[list[SongData]]:
         """Retrieves all songs.
 
         Returns:
-            List of SongSchema objects.
+            List of SongData objects.
         """
         try:
             songs = self.session.query(Song).all()
 
-            return SongSchema().dump(songs, many=True)
+            return [SongData.from_dict(song.__dict__) for song in songs]
 
         except Exception:
             logging.exception("Something happened while retrieving all songs.")
             return None
 
-    def get_song_by_id(self, song_id: int) -> Optional[SongSchema]:
+    def get_song_by_id(self, song_id: int) -> Optional[SongData]:
         """Retrieves a song by its id.
 
         Args:
             song_id: songs unique identifier.
 
         Returns:
-            SongSchema object.
+            SongData object.
         """
         try:
             song = self.session.query(Song).filter_by(id=song_id).first()
 
-            return SongSchema().dump(song)
+            if not song:
+                return song
+
+            return SongData.from_dict(song.__dict__)
 
         except Exception:
             logging.exception(f"Something happened while retrieving song by id: {song_id}.")
             return None
 
-    def get_songs_filtered(self, filters: list[SongFilters]):
-        """"
-        Retrieves songs filtered by params.
+    def get_songs_filtered(self, filters: list[SongFiltersData]) -> [list[SongData], int]:
+        """Retrieves songs filtered by params.
 
         Args:
-            filters: Filters object.
+            filters: ArtistFilters object.
 
         Returns:
-            *** TODO ***
+            artists: List of ArtistData objects
+            count: total number of registers.
         """
         try:
             query = self.session.query(Song)
 
-            for filter_ in filters:
-                operator = FILTER_MAP.get(filter_.operator)
-                field = getattr(Song, filter_.field)
+            if filters.field:
+                operator = FILTER_MAP.get(filters.operator)
+                field = getattr(Song, filters.field)
 
-                query = operator(query=query, field=field, value=filter_.value)
+                query = operator(query=query, field=field, value=filters.value)
 
-            songs = (
-                query.offset(1).limit(10).all()
-            )
+            songs = query.offset(filters.offset).limit(filters.limit).all()
 
             song_count = query.count()
 
-            # TODO - RETURN A SONG DATACLASS
+            songs = [SongData.from_dict(song.__dict__) for song in songs]
+
             return songs, song_count
 
         except Exception:

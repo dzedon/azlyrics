@@ -1,5 +1,6 @@
 """Provide base clases for database-based repositories."""
 from abc import ABC
+
 from sqlalchemy.orm import Session
 
 

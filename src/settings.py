@@ -1,4 +1,3 @@
-import os
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -9,7 +8,7 @@ class Settings:
 
     # project settings
     host: str = "0.0.0.0"
-    port: str = 5001
+    port: int = 5001
     debug: bool = True
 
     # database

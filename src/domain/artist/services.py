@@ -1,17 +1,20 @@
 import logging
+from typing import Optional
 
-from domain.artist.schemas import ArtistSchema
+from domain.artist.data import ArtistData, ArtistFiltersData
 from domain.artist.repositories import ArtistRepository
-from domain.artist.dataclass import Artist, ArtistFilters
 
 logger = logging.getLogger("AZ_LYRICS")
 
+
 class ArtistService:
+    """Artists service."""
 
     def __init__(self, artist_repository: ArtistRepository):
+        """Initializes Artists service."""
         self.artist_repository = artist_repository
 
-    def create_multiple_artists(self, artists: list):
+    def create_multiple_artists(self, artists: list) -> Optional[list[ArtistData]]:
         """Creates a new artist register.
 
         Args:
@@ -25,51 +28,52 @@ class ArtistService:
 
         return new_artists
 
-    def get_artists(self):
-        """Creates multiple artists registers.
+    def get_artists(self) -> [Optional[ArtistData]]:
+        """Retrieves multiple artists registers.
 
         Returns:
-            List of ArtistSchema objects.
+            artists: List of ArtistData objects.
         """
         logging.info("Retrieving all artists.")
         artists = self.artist_repository.get_artists()
 
         return artists
 
-    def get_artist_by_id(self, artist_id: int) -> ArtistSchema:
+    def get_artist_by_id(self, artist_id: int) -> Optional[ArtistData]:
         """Retrieves an artist by its id.
 
         Args:
             artist_id: artist's unique identifier.
 
         Returns:
-            artist: ArtistSchema object.
+            ArtistData object.
         """
         logging.info(f"Retrieving artist by id: {artist_id}")
         artist = self.artist_repository.get_artist_by_id(artist_id=artist_id)
 
+        if not artist:
+            message = f"Artist with id: {artist_id} not found."
+            logging.info(message)
+            raise Exception(message)
+
         return artist
 
-    def get_artists_filtered(self, params: dict):
-        """
-        Retrieves artists filtered by params.
+    def get_artists_filtered(self, filters: ArtistFiltersData) -> [ArtistData, int]:
+        """Retrieves artists filtered by params.
 
         Args:
-            params: dict with filters and orders.
+            filters: ArtistFiltersData object with filters and orders.
 
         Returns:
-           ***
+            artists: List of ArtistData objects
+            count: total number of registers.
         """
         try:
-            filters = [ArtistFilters(**filter_) for filter_ in params.get('filters')]
-
             logging.info(f"Retrieving artists filtered by: {filters}")
 
-            artists, count = self.artist_repository.get_artists_filtered(
-                filters=filters
-            )
+            artists, count = self.artist_repository.get_artists_filtered(filters=filters)
 
-            return ArtistSchema().dump(artists, many=True), count
+            return artists, count
 
         except Exception:
             raise Exception("Something happened while retrieving artists filtered.")

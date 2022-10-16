@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "8fe324fa-ccf5-4b91-80e9-eef968eb8217",
+		"_postman_id": "73a271df-eb2e-4f48-a86a-b5dc1af305e8",
 		"name": "azlyrics",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "18839277"
+		"_exporter_id": "16478948"
 	},
 	"item": [
 		{
@@ -15,9 +15,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{pr1.url}}/artist",
+							"raw": "{{az.url}}/artist",
 							"host": [
-								"{{pr1.url}}"
+								"{{az.url}}"
 							],
 							"path": [
 								"artist"
@@ -32,13 +32,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{pr1.url}}/artist/70",
+							"raw": "{{az.url}}/artist/10",
 							"host": [
-								"{{pr1.url}}"
+								"{{az.url}}"
 							],
 							"path": [
 								"artist",
-								"70"
+								"10"
 							]
 						}
 					},
@@ -51,7 +51,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n \"search_letter\": \"b\"  \n}",
+							"raw": "{\n \"search_letter\": \"c\"  \n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -59,9 +59,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{pr1.url}}/artist/fill-database",
+							"raw": "{{az.url}}/artist/fill-database",
 							"host": [
-								"{{pr1.url}}"
+								"{{az.url}}"
 							],
 							"path": [
 								"artist",
@@ -86,9 +86,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{pr1.url}}/artist/10/fill-database",
+							"raw": "{{az.url}}/artist/10/fill-database",
 							"host": [
-								"{{pr1.url}}"
+								"{{az.url}}"
 							],
 							"path": [
 								"artist",
@@ -102,25 +102,43 @@
 				{
 					"name": "Artists Filtered",
 					"request": {
-						"method": "POST",
+						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"filters\": [\n        {\n            \"field\": \"url_name\",\n            \"operator\": \"like\",\n            \"value\": \"a\"\n        }\n    ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "{{pr1.url}}/artist/search-artist",
+							"raw": "{{az.url}}/artist/search-artist",
 							"host": [
-								"{{pr1.url}}"
+								"{{az.url}}"
 							],
 							"path": [
 								"artist",
 								"search-artist"
+							],
+							"query": [
+								{
+									"key": "field",
+									"value": "url_name",
+									"disabled": true
+								},
+								{
+									"key": "operator",
+									"value": "like",
+									"disabled": true
+								},
+								{
+									"key": "value",
+									"value": "a",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "5",
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": "1",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -137,12 +155,57 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{pr1.url}}/album",
+							"raw": "{{az.url}}/album",
 							"host": [
-								"{{pr1.url}}"
+								"{{az.url}}"
 							],
 							"path": [
 								"album"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Album Filtered",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{az.url}}/album/search-album",
+							"host": [
+								"{{az.url}}"
+							],
+							"path": [
+								"album",
+								"search-album"
+							],
+							"query": [
+								{
+									"key": "field",
+									"value": "url_name",
+									"disabled": true
+								},
+								{
+									"key": "operator",
+									"value": "like",
+									"disabled": true
+								},
+								{
+									"key": "value",
+									"value": "a",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "5",
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": "1",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -154,40 +217,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{pr1.url}}/album/1",
+							"raw": "{{az.url}}/album/11",
 							"host": [
-								"{{pr1.url}}"
+								"{{az.url}}"
 							],
 							"path": [
 								"album",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Artists Filtered Copy",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"filters\": [\n        {\n            \"field\": \"name\",\n            \"operator\": \"like\",\n            \"value\": \"a\"\n        }\n    ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{pr1.url}}/album/search-album",
-							"host": [
-								"{{pr1.url}}"
-							],
-							"path": [
-								"album",
-								"search-album"
+								"11"
 							]
 						}
 					},
@@ -204,9 +240,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{pr1.url}}/song",
+							"raw": "{{az.url}}/song",
 							"host": [
-								"{{pr1.url}}"
+								"{{az.url}}"
 							],
 							"path": [
 								"song"
@@ -216,27 +252,45 @@
 					"response": []
 				},
 				{
-					"name": "Song  Filtered",
+					"name": "Songs Filtered",
 					"request": {
-						"method": "POST",
+						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"filters\": [\n        {\n            \"field\": \"name\",\n            \"operator\": \"like\",\n            \"value\": \"b\"\n        }\n    ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "{{pr1.url}}/song/search-song",
+							"raw": "{{az.url}}/song/search-song",
 							"host": [
-								"{{pr1.url}}"
+								"{{az.url}}"
 							],
 							"path": [
 								"song",
 								"search-song"
+							],
+							"query": [
+								{
+									"key": "field",
+									"value": "url_name",
+									"disabled": true
+								},
+								{
+									"key": "operator",
+									"value": "like",
+									"disabled": true
+								},
+								{
+									"key": "value",
+									"value": "a",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "5",
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": "1",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -248,13 +302,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{pr1.url}}/song/199",
+							"raw": "{{az.url}}/song/1",
 							"host": [
-								"{{pr1.url}}"
+								"{{az.url}}"
 							],
 							"path": [
 								"song",
-								"199"
+								"1"
 							]
 						}
 					},
@@ -268,9 +322,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{pr1.url}}/",
+					"raw": "{{az.url}}/",
 					"host": [
-						"{{pr1.url}}"
+						"{{az.url}}"
 					],
 					"path": [
 						""
