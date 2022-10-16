@@ -1,12 +1,12 @@
 import logging
 from re import search
+from typing import Any
 
 import requests
 from bs4 import BeautifulSoup
 
 from domain.album.services import AlbumService
 from domain.artist.data import ArtistData
-from domain.artist.schemas import ArtistSchema
 from domain.artist.services import ArtistService
 from domain.song.services import SongService
 from settings import settings
@@ -25,6 +25,40 @@ class ScrapperService:
         self.album_service = album_service
         self.song_service = song_service
 
+    def _albums_and_songs_generator(self, results: list) -> Any:
+        """Generator for the albums and songs URL response.
+
+        Args:
+            results: list with all the albums and songs web page data.
+
+        Yields:
+            ArtistSchema object.
+        """
+        for element in results:
+            yield element
+
+    def _artist_generator(self, artists_results: list) -> ArtistData:
+        """Generator for the artists URL response.
+
+        Args:
+            artists_results: list with all the artists web page data.
+
+        Yields:
+            ArtistData object.
+        """
+        for artist in artists_results:
+
+            url_name = search("(?<=a\/).*?(?=\.html)", artist)  # noqa: W605
+            artist_name = search("(?<=>).*?(?=<)", artist)  # noqa: W605
+
+            if url_name and artist_name:
+                url_name = url_name.group()
+                artist_name = artist_name.group()
+
+                logger.info(f"Found artist {artist_name}.")
+
+                yield ArtistData(url_name=url_name, name=artist_name)
+
     def _get_artists(self, artists_results: list) -> list[ArtistData]:
         """Cleans the artist name.
 
@@ -35,21 +69,13 @@ class ScrapperService:
             artists_list: list with 5 ArtistData objects.
         """
         logging.info("Filtering artists")
+        artists_list = []
+        for artist in self._artist_generator(artists_results=artists_results):
+            artists_list.append(artist)
 
-        artist_list = []
-        for artist in artists_results:
-
-            url_name = search("(?<=a\/).*?(?=\.html)", artist)  # noqa: W605
-            artist_name = search("(?<=>).*?(?=<)", artist)  # noqa: W605
-
-            if url_name and artist_name:
-
-                logger.info("Found an artist.")
-                new_artist = ArtistData(url_name=url_name.group(), name=artist_name.group())
-
-                artist_list.append(new_artist)
-
-        return artist_list[:5]
+            if len(artists_list) == settings.artists_max_limit:
+                logging.info(f"Found {settings.artists_max_limit} artists.")
+                return artists_list
 
     def _get_artist_albums_and_songs(self, results: list, artist_name: str) -> dict:
         """Filter the artist albums and songs from the web page.
@@ -62,21 +88,34 @@ class ScrapperService:
             artist_albums: dictionary with albums and songs.
         """
         logging.info("Filtering artist albums and songs")
+
         artist_albums = {}
-        for line in results:
+        album_name = ""
+        for line in self._albums_and_songs_generator(results=results):
+
             album = search('(?<=b>").*?(?="<\/b>)', line)  # noqa: W605
             if album:
                 logging.info("Found an album.")
                 album_name = album.group()
                 artist_albums[album_name] = []
+
+            if len(artist_albums.get(album_name, ".")) == settings.songs_max_limit:
+                logging.info(f"Album has {settings.songs_max_limit} songs.")
+
+                if len(artist_albums) == settings.albums_max_limit:
+                    logging.info(f"Artist has {settings.albums_max_limit} albums.")
+                    return artist_albums
+
+                continue
+
             song = search(f"(?<={artist_name}\/).*?(?=\.html)", line)  # noqa: W605
             if song:
                 logging.info("Found a song.")
-                artist_albums[album_name].append(song.group())
+                artist_albums.get(album_name).append(song.group())
 
         return artist_albums
 
-    def _get_artist_albums_and_songs_from_url(self, artist: ArtistSchema) -> list:
+    def _get_artist_albums_and_songs_from_url(self, artist: ArtistData) -> list:
         """Retrieves all the artist albums and songs from the web page.
 
         Args:
