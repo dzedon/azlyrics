@@ -1,15 +1,16 @@
 import inspect
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal, Union
 
 
-@dataclass
+@dataclass(kw_only=True)
 class SongData:
     """Song dataclass."""
 
     name: str
     album_id: int = None
     id: int = None
+    lyrics: str = None
 
     @classmethod
     def from_dict(cls, env):
@@ -17,11 +18,18 @@ class SongData:
         return cls(**{k: v for k, v in env.items() if k in inspect.signature(cls).parameters})
 
 
+@dataclass(kw_only=True)
+class SongArtistData(SongData):
+    """Song with artist_url_name dataclass."""
+
+    artist_url_name: str = None
+
+
 @dataclass
 class SongFiltersData:
     """Song filters dataclass."""
 
-    field: Literal["id", "album_id", "name"] = None
+    field: Literal["id", "album_id", "name", "lyrics"] = None
     operator: Literal[
         "equals",
         "not_equals",

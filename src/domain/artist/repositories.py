@@ -6,7 +6,7 @@ from database.repositories import OrmRepository
 from domain.artist.data import ArtistData, ArtistFiltersData
 from domain.artist.models import Artist
 
-logger = logging.getLogger("AZ_LYRICS")
+logger = logging.getLogger("ArtistRepository")
 
 
 class ArtistRepository(OrmRepository):

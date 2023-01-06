@@ -12,16 +12,19 @@ class Settings:
     debug: bool = True
 
     # database
-    database_uri: str = "postgresql://user:password@lyrics_db/lyric"
+    DATABASE_URI: str = "postgresql://user:password@lyrics_db/lyric"
 
     # azlyrics
-    azlyrics_url: str = "https://www.azlyrics.com/{}.html"
-    azlyrics_artist: str = "https://www.azlyrics.com/{}/{}.html"
-    azlyrics_search: str = "https://search.azlyrics.com/search.php"
-    azlyrics_x_param: str = "f103343153744bb15c416120f86dcb61cf2ab2ef9a7b3fe3b241e29f957bfcb1"
-    albums_max_limit: int = 5
-    songs_max_limit: int = 5
-    artists_max_limit: int = 5
+    AZLYRICS_URL: str = "https://www.azlyrics.com/{}"
+    # AZLYRICS_URL: str = "https://www.azlyrics.com/lyrics"
+    AZLYRICS_ARTIST: str = "https://www.azlyrics.com/{}/{}.html"
+    AZLYRICS_SEARCH: str = "https://search.azlyrics.com/search.php"
+    AZLYRICS_X_PARAM: str = "f103343153744bb15c416120f86dcb61cf2ab2ef9a7b3fe3b241e29f957bfcb1"
+    ALBUMS_MAX_LIMIT: int = 5
+    ALBUM_SONGS_MAX_LIMIT: int = 2
+    SONGS_MAX_LIMIT: int = 5
+    ARTISTS_MAX_LIMIT: int = 5
+    SLEEP_TIMEOUT: int = 10
 
 
 settings = Settings()

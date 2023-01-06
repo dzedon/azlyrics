@@ -4,7 +4,7 @@ from typing import Optional
 from domain.artist.data import ArtistData, ArtistFiltersData
 from domain.artist.repositories import ArtistRepository
 
-logger = logging.getLogger("AZ_LYRICS")
+logger = logging.getLogger("ArtistService")
 
 
 class ArtistService:
@@ -15,7 +15,7 @@ class ArtistService:
         self.artist_repository = artist_repository
 
     def create_multiple_artists(self, artists: list) -> Optional[list[ArtistData]]:
-        """Creates a new artist register.
+        """Create a new artist register.
 
         Args:
             artists: ArtistSchema object.
@@ -29,7 +29,7 @@ class ArtistService:
         return new_artists
 
     def get_artists(self) -> [Optional[ArtistData]]:
-        """Retrieves multiple artists registers.
+        """Retrieve multiple artists registers.
 
         Returns:
             artists: List of ArtistData objects.
@@ -40,7 +40,7 @@ class ArtistService:
         return artists
 
     def get_artist_by_id(self, artist_id: int) -> Optional[ArtistData]:
-        """Retrieves an artist by its id.
+        """Retrieve an artist by its id.
 
         Args:
             artist_id: artist's unique identifier.
@@ -59,7 +59,7 @@ class ArtistService:
         return artist
 
     def get_artists_filtered(self, filters: ArtistFiltersData) -> [ArtistData, int]:
-        """Retrieves artists filtered by params.
+        """Retrieve artists filtered by params.
 
         Args:
             filters: ArtistFiltersData object with filters and orders.

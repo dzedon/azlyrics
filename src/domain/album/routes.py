@@ -9,7 +9,7 @@ album_blueprint = Blueprint("album", __name__)
 
 @album_blueprint.route("", methods=["GET"])
 def get_album():
-    """Retrieves all albums."""
+    """Retrieve all albums."""
     album_service = AlbumService(album_repository=album_repository)
 
     albums = album_service.get_albums()
@@ -20,7 +20,7 @@ def get_album():
 
 @album_blueprint.route("/<int:album_id>", methods=["GET"])
 def get_album_by_id(album_id: int):
-    """Retrieves an album by id."""
+    """Retrieve an album by id."""
     album_service = AlbumService(album_repository=album_repository)
 
     album = album_service.get_album_by_id(album_id=album_id)
@@ -31,7 +31,7 @@ def get_album_by_id(album_id: int):
 
 @album_blueprint.route("/search-album", methods=["GET"])
 def get_filtered_albums():
-    """Retrieves albums filtered by a search term."""
+    """Retrieve albums filtered by a search term."""
     filters = AlbumFiltersSchema().load(request.args)
 
     album_service = AlbumService(album_repository)

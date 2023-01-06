@@ -9,7 +9,7 @@ from settings import settings
 def get_engine(settings):
     """Return a SQLAlchemy engine."""
     return create_engine(
-        settings.database_uri,
+        settings.DATABASE_URI,
         pool_pre_ping=True,
     )
 

@@ -11,7 +11,7 @@ class SongSchema(Schema):
     album_id: int = fields.Int(attribute="album_id")
 
     @post_load
-    def make_artist(self, data, **kwargs):
+    def make_song(self, data, **kwargs):
         """Create an Song object from the deserialized data."""
         return SongData(**data)
 

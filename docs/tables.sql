@@ -26,6 +26,7 @@ create table song
     created_at timestamp default now() not null,
     updated_at timestamp default now() not null,
     name       varchar(50),
+    lyrics      varchar,
     album_id   integer
         references album
 );
