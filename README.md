@@ -31,4 +31,5 @@ are filled bc of timeout error.
 [ ] Fill lyrics might be async or thread?   
 [ ] Check try and except locations  
 [ ] Bulk update for Song table
-[ ] Refactor fill lyrics
+[ ] Refactor fill lyrics   
+[ ] Create tables at project init.
