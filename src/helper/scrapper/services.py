@@ -1,6 +1,7 @@
 import logging
 from re import search
 from typing import Any
+from time import sleep
 
 import requests
 from bs4 import BeautifulSoup
@@ -11,7 +12,7 @@ from domain.artist.services import ArtistService
 from domain.song.services import SongService
 from settings import settings
 
-logger = logging.getLogger("AZ_LYRICS")
+logger = logging.getLogger("ScrapperService")
 
 
 class ScrapperService:
@@ -46,6 +47,7 @@ class ScrapperService:
         Yields:
             ArtistData object.
         """
+        # TODO: Chech Single Responsability Principle
         for artist in artists_results:
 
             url_name = search("(?<=a\/).*?(?=\.html)", artist)  # noqa: W605
@@ -59,8 +61,8 @@ class ScrapperService:
 
                 yield ArtistData(url_name=url_name, name=artist_name)
 
-    def _get_artists(self, artists_results: list) -> list[ArtistData]:
-        """Cleans the artist name.
+    def _filter_artists(self, artists_results: list) -> list[ArtistData]:
+        """Clean the artist name.
 
         Args:
             artists_results: list with all the artists web page data.
@@ -73,11 +75,11 @@ class ScrapperService:
         for artist in self._artist_generator(artists_results=artists_results):
             artists_list.append(artist)
 
-            if len(artists_list) == settings.artists_max_limit:
-                logging.info(f"Found {settings.artists_max_limit} artists.")
+            if len(artists_list) == settings.ARTISTS_MAX_LIMIT:
+                logging.info(f"Found {settings.ARTISTS_MAX_LIMIT} artists.")
                 return artists_list
 
-    def _get_artist_albums_and_songs(self, results: list, artist_name: str) -> dict:
+    def _filter_artist_albums_and_songs(self, results: list, artist_name: str) -> dict:
         """Filter the artist albums and songs from the web page.
 
         Args:
@@ -99,11 +101,11 @@ class ScrapperService:
                 album_name = album.group()
                 artist_albums[album_name] = []
 
-            if len(artist_albums.get(album_name, ".")) == settings.songs_max_limit:
-                logging.info(f"Album has {settings.songs_max_limit} songs.")
+            if len(artist_albums.get(album_name, ".")) == settings.SONGS_MAX_LIMIT:
+                logging.info(f"Album has {settings.SONGS_MAX_LIMIT} songs.")
 
-                if len(artist_albums) == settings.albums_max_limit:
-                    logging.info(f"Artist has {settings.albums_max_limit} albums.")
+                if len(artist_albums) == settings.ALBUMS_MAX_LIMIT:
+                    logging.info(f"Artist has {settings.ALBUMS_MAX_LIMIT} albums.")
                     return artist_albums
 
                 continue
@@ -116,7 +118,7 @@ class ScrapperService:
         return artist_albums
 
     def _get_artist_albums_and_songs_from_url(self, artist: ArtistData) -> list:
-        """Retrieves all the artist albums and songs from the web page.
+        """Retrieve all the artist albums and songs from the web page.
 
         Args:
             artist: ArtistSchema object.
@@ -128,8 +130,8 @@ class ScrapperService:
 
         url_name = artist.url_name
 
-        artist_url = settings.azlyrics_artist.format(url_name[0], url_name)
-        params = {"q": url_name, "x": settings.azlyrics_x_param}
+        artist_url = settings.AZLYRICS_ARTIST.format(url_name[0], url_name)
+        params = {"q": url_name, "x": settings.AZLYRICS_X_PARAM}
 
         url_response = requests.get(url=artist_url, params=params)
 
@@ -140,7 +142,7 @@ class ScrapperService:
         return [str(element) for line in artist_items for element in line]
 
     def _get_artist_from_url(self, artist_letter: str) -> list:
-        """Retrieves all the artists from the web page.
+        """Retrieve all the artists from the web page.
 
         Args:
             artist_letter: The letter to search for artists.
@@ -149,7 +151,7 @@ class ScrapperService:
             list with all the artists web page data.
         """
         logging.info("Retrieving artists from url")
-        az_url = settings.azlyrics_url.format(artist_letter)
+        az_url = settings.AZLYRICS_URL.format(artist_letter)
 
         url_response = requests.get(url=az_url)
         soup = BeautifulSoup(markup=url_response.content, features="html.parser")
@@ -157,6 +159,65 @@ class ScrapperService:
         artists_web = soup.find_all(name="div", class_="col-sm-6 text-center artist-col")
 
         return [str(element) for line in artists_web for element in line]
+
+    def _filter_lyrics(self, results: list) -> str:
+        """Filter URL results to only leave the song lyrics.
+
+        Args:
+            results: results.
+
+        Returns:
+            Complete lyric as a string.
+        """
+        results = [res for res in results if res.startswith('\n')]
+
+        return "".join(results)
+
+    def _get_lyrics_from_url(self, song_name: str, artist_name: str):
+        """***."""
+        # TODO: needs to be refactored.
+        logger.info(f"Constructing URL for song: {song_name} from artist: {artist_name}.")
+        az_url = f'{settings.AZLYRICS_URL}/{artist_name}/{song_name}.html'.format('lyrics')
+
+        logger.info(f"Calling URL: {az_url}")
+        url_response = requests.get(url=az_url)
+
+        if url_response.status_code != 200:
+            logger.info(f"Something wrong with URL, status code: {url_response.status_code}")
+            return None
+
+        logger.info("Scrapping HTML.")
+        soup = BeautifulSoup(markup=url_response.content, features="html.parser")
+
+        song_lyrics = soup.find_all(name="div", class_="")
+
+        if not song_lyrics:
+            logger.info("Scrapped HTML failed.")
+            return None
+
+        logger.info("HTML scrapped successfully.")
+        return [str(element) for line in song_lyrics for element in line]
+
+    def _remove_multiple_songs_from_songs_list(self, songs: list) -> list:
+        """***."""
+        # TODO: TEMP.
+        logger.info("Removing multiple records.")
+        old_album_id = 0
+        song_counter = 0
+        new_song_list = []
+
+        for song in songs:
+            if song.album_id != old_album_id:
+                old_album_id = song.album_id
+                song_counter = 0
+
+            if song.lyrics or song_counter == settings.ALBUM_SONGS_MAX_LIMIT:
+                continue
+
+            new_song_list.append(song)
+            song_counter += 1
+
+        return new_song_list
 
     def fill_artists(self, artist_letter: str) -> bool:
         """Fill the database with new artists.
@@ -170,7 +231,7 @@ class ScrapperService:
         try:
             results = self._get_artist_from_url(artist_letter=artist_letter)
 
-            filtered_result = self._get_artists(artists_results=results)
+            filtered_result = self._filter_artists(artists_results=results)
 
             self.artist_service.create_multiple_artists(artists=filtered_result)
 
@@ -194,7 +255,7 @@ class ScrapperService:
 
             results = self._get_artist_albums_and_songs_from_url(artist=artist)
 
-            artist_albums = self._get_artist_albums_and_songs(
+            artist_albums = self._filter_artist_albums_and_songs(
                 results=results, artist_name=artist.url_name
             )
 
@@ -218,4 +279,33 @@ class ScrapperService:
             logger.exception("Something happened while filling artist items.")
             return False
 
+        return True
+
+    def fill_artist_lyrics(self, artist_id: int):
+        """Fill the database with new albums and songs from an artist.
+
+        Args:
+            artist_id: artists unique identifier.
+
+        Returns:
+            True
+        """
+        try:
+            songs_list = self.song_service.get_songs_by_artist_id(artist_id=artist_id)
+
+            songs = self._remove_multiple_songs_from_songs_list(songs=songs_list)
+
+            #  TODO: refactor
+            for song in songs:
+                results = self._get_lyrics_from_url(song_name=song.name, artist_name=song.artist_url_name)
+                song.lyrics = self._filter_lyrics(results=results)
+                self.song_service.update_song_by_id(song_id=song.id,song_data={
+                    "lyrics":song.lyrics})
+                sleep(settings.SLEEP_TIMEOUT)
+
+        except Exception:
+            logger.exception(f"Something happened while filling artist with id: {artist_id} lyrics.")
+            return False
+
+        logger.info(f"Artist id: {artist_id} lyrics filled.")
         return True

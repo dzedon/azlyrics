@@ -6,13 +6,13 @@ from domain.artist.services import ArtistService
 from domain.song.services import SongService
 from helper.scrapper.services import ScrapperService
 from utils.dependencies import album_repository, artist_repository, song_repository
-
+from settings import settings
 artist_blueprint = Blueprint("artist", __name__)
 
 
 @artist_blueprint.route("/fill-database", methods=["POST"])
 def fill_artists():
-    """Fill db with 5 artists."""
+    f"""Fill db with {settings.ARTISTS_MAX_LIMIT} artists."""
     payload = request.get_json()
 
     artist_service = ArtistService(artist_repository=artist_repository)
@@ -30,7 +30,8 @@ def fill_artists():
 
 @artist_blueprint.route("/<int:artist_id>/fill-database", methods=["POST"])
 def fill_artist_items(artist_id):
-    """Fill db with artist's albums and songs."""
+    f"""Fill db with {settings.ALBUMS_MAX_LIMIT} artist's albums and {settings.SONGS_MAX_LIMIT} songs per 
+    album."""
     artist_service = ArtistService(artist_repository=artist_repository)
     album_service = AlbumService(album_repository=album_repository)
     song_service = SongService(song_repository=song_repository)
@@ -44,9 +45,25 @@ def fill_artist_items(artist_id):
     return jsonify({"database": "db filled"})
 
 
+@artist_blueprint.route("/<int:artist_id>/fill-lyrics", methods=["POST"])
+def fill_artist_lyrics(artist_id):
+    """Fill artist's songs with their lyrics."""
+    artist_service = ArtistService(artist_repository=artist_repository)
+    album_service = AlbumService(album_repository=album_repository)
+    song_service = SongService(song_repository=song_repository)
+
+    scrapper_service = ScrapperService(
+        artist_service=artist_service, album_service=album_service, song_service=song_service
+    )
+
+    songs = scrapper_service.fill_artist_lyrics(artist_id=artist_id)
+
+    return jsonify({"cool": songs})
+
+
 @artist_blueprint.route("", methods=["GET"])
 def get_artists():
-    """Retrieves all artists in the database."""
+    """Retrieve all artists in the database."""
     artists_service = ArtistService(artist_repository=artist_repository)
 
     artists = artists_service.get_artists()
@@ -57,7 +74,7 @@ def get_artists():
 
 @artist_blueprint.route("/<int:artist_id>", methods=["GET"])
 def get_artist_by_id(artist_id):
-    """Retrieves an artist by its id."""
+    """Retrieve an artist by its id."""
     artists_service = ArtistService(artist_repository=artist_repository)
 
     artist = artists_service.get_artist_by_id(artist_id=artist_id)
@@ -68,7 +85,7 @@ def get_artist_by_id(artist_id):
 
 @artist_blueprint.route("/search-artist", methods=["GET"])
 def get_filtered_artists():
-    """Retrieves artists filtered by a search field."""
+    """Retrieve artists filtered by a search field."""
     filters = ArtistFiltersSchema().load(request.args)
 
     artists_service = ArtistService(artist_repository=artist_repository)

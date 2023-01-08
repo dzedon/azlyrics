@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy import Column, ForeignKey, Integer, String
 
 from database.mixins import Identified, Named, TimeStamped
 from database.registries import default_registry
@@ -11,3 +11,4 @@ class Song(Identified, Named, TimeStamped):
     __tablename__ = "song"
 
     album_id = Column(Integer, ForeignKey("album.id"), nullable=False)
+    lyrics = Column(String, nullable=True)

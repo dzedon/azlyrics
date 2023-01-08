@@ -9,7 +9,7 @@ song_blueprint = Blueprint("song", __name__)
 
 @song_blueprint.route("/", methods=["GET"])
 def get_song():
-    """Retrieves all songs."""
+    """Retrieve all songs."""
     song_service = SongService(song_repository)
 
     songs = song_service.get_songs()
@@ -20,7 +20,7 @@ def get_song():
 
 @song_blueprint.route("/<int:song_id>", methods=["GET"])
 def get_song_by_id(song_id):
-    """Retrieves a song by its id."""
+    """Retrieve a song by its id."""
     song_service = SongService(song_repository)
 
     song = song_service.get_song_by_id(song_id)
@@ -31,7 +31,7 @@ def get_song_by_id(song_id):
 
 @song_blueprint.route("/search-song", methods=["GET"])
 def get_filtered_songs():
-    """Retrieves songs filtered by a search field."""
+    """Retrieve songs filtered by a search field."""
     filters = SongFiltersSchema().load(request.args)
 
     song_service = SongService(song_repository)

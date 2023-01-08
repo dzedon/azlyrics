@@ -1,10 +1,10 @@
 import logging
-from typing import Optional
+from typing import Optional, List
 
-from domain.song.data import SongData, SongFiltersData
+from domain.song.data import SongData, SongFiltersData, SongArtistData
 from domain.song.repositories import SongRepository
 
-logger = logging.getLogger("AZ_LYRICS")
+logger = logging.getLogger("SongService")
 
 
 class SongService:
@@ -37,6 +37,25 @@ class SongService:
         """
         logging.info("Retrieving all songs.")
         songs = self.song_repository.get_songs()
+
+        return songs
+
+    def get_songs_by_artist_id(self, artist_id: int) -> Optional[list[SongArtistData]]:
+        """Retrieve all songs from an artist by its id.
+
+        Args:
+            artist_id: artist's unique identifier.
+
+        Returns:
+            SongData
+        """
+        logging.info(f"Retrieving songs by artist id: {artist_id}")
+        songs = self.song_repository.get_songs_by_artist_id(artist_id=artist_id)
+
+        if not songs:
+            message = f"Songs for artist with id: {artist_id} not found."
+            logging.info(message)
+            raise Exception(message)
 
         return songs
 
@@ -78,3 +97,16 @@ class SongService:
 
         except Exception:
             raise Exception("Something happened while retrieving songs filtered.")
+
+    def update_song_by_id(self, song_id: int, song_data: dict) -> bool:
+        """***."""
+        logger.info(f"About to update song id: {song_id}")
+
+        updated = self.song_repository.update_song_by_id(song_id=song_id, song_data=song_data)
+
+        if not updated:
+            logger.info(f"Couldn't update song id: {song_id}")
+            return False
+
+        logger.info(f'Song id: {song_id} updated successfully.')
+        return True
