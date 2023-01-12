@@ -18,18 +18,18 @@ are filled bc of timeout error.
 ------
 
 # ToDo
-[ ] User Login   
-[ ] Smart fill   
-[ ] Timeout error when getting lyrics   
-[ ] Credits(for users to fill db, get songs, etc)  
-[ ] Analytics   
-[ ] Visualization   
-[ ] Search for specific artist/song   
-[ ] Something with Dataclass or Schemas, cant remember  
-[ ] Check generators on Scrapper Service   
-[ ] Check loggings message an location   
-[ ] Fill lyrics might be async or thread?   
-[ ] Check try and except locations  
-[ ] Bulk update for Song table
-[ ] Refactor fill lyrics   
-[ ] Create tables at project init.
+- [ ] User Login   
+- [ ] Smart fill   
+- [ ] Timeout error when getting lyrics   
+- [ ] Credits(for users to fill db, get songs, etc)  
+- [ ] Analytics   
+- [ ] Visualization   
+- [ ] Search for specific artist/song   
+- [ ] Something with Dataclass or Schemas, cant remember  
+- [ ] Check generators on Scrapper Service   
+- [ ] Check loggings message an location   
+- [ ] Fill lyrics might be async or thread?   
+- [ ] Check try and except locations  
+- [ ] Bulk update for Song table   
+- [ ] Refactor fill lyrics   
+- [ ] Create tables at project init.
