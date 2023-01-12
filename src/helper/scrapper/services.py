@@ -70,13 +70,13 @@ class ScrapperService:
         Returns:
             artists_list: list with 5 ArtistData objects.
         """
-        logging.info("Filtering artists")
+        logger.info("Filtering artists")
         artists_list = []
         for artist in self._artist_generator(artists_results=artists_results):
             artists_list.append(artist)
 
             if len(artists_list) == settings.ARTISTS_MAX_LIMIT:
-                logging.info(f"Found {settings.ARTISTS_MAX_LIMIT} artists.")
+                logger.info(f"Found {settings.ARTISTS_MAX_LIMIT} artists.")
                 return artists_list
 
     def _filter_artist_albums_and_songs(self, results: list, artist_name: str) -> dict:
@@ -89,7 +89,7 @@ class ScrapperService:
         Returns:
             artist_albums: dictionary with albums and songs.
         """
-        logging.info("Filtering artist albums and songs")
+        logger.info("Filtering artist albums and songs")
 
         artist_albums = {}
         album_name = ""
@@ -97,22 +97,22 @@ class ScrapperService:
 
             album = search('(?<=b>").*?(?="<\/b>)', line)  # noqa: W605
             if album:
-                logging.info("Found an album.")
+                logger.info("Found an album.")
                 album_name = album.group()
                 artist_albums[album_name] = []
 
             if len(artist_albums.get(album_name, ".")) == settings.SONGS_MAX_LIMIT:
-                logging.info(f"Album has {settings.SONGS_MAX_LIMIT} songs.")
+                logger.info(f"Album has {settings.SONGS_MAX_LIMIT} songs.")
 
                 if len(artist_albums) == settings.ALBUMS_MAX_LIMIT:
-                    logging.info(f"Artist has {settings.ALBUMS_MAX_LIMIT} albums.")
+                    logger.info(f"Artist has {settings.ALBUMS_MAX_LIMIT} albums.")
                     return artist_albums
 
                 continue
 
             song = search(f"(?<={artist_name}\/).*?(?=\.html)", line)  # noqa: W605
             if song:
-                logging.info("Found a song.")
+                logger.info("Found a song.")
                 artist_albums.get(album_name).append(song.group())
 
         return artist_albums
@@ -126,7 +126,7 @@ class ScrapperService:
         Returns:
             list with all the artist's albums and songs.
         """
-        logging.info("Retrieving artist albums and songs from url")
+        logger.info("Retrieving artist albums and songs from url")
 
         url_name = artist.url_name
 
@@ -150,10 +150,11 @@ class ScrapperService:
         Returns:
             list with all the artists web page data.
         """
-        logging.info("Retrieving artists from url")
+        logger.info("Retrieving artists from url")
         az_url = settings.AZLYRICS_URL.format(artist_letter)
 
         url_response = requests.get(url=az_url)
+        
         soup = BeautifulSoup(markup=url_response.content, features="html.parser")
 
         artists_web = soup.find_all(name="div", class_="col-sm-6 text-center artist-col")
@@ -295,16 +296,18 @@ class ScrapperService:
 
             songs = self._remove_multiple_songs_from_songs_list(songs=songs_list)
 
-            #  TODO: refactor
+            # TODO: refactor
             for song in songs:
-                results = self._get_lyrics_from_url(song_name=song.name, artist_name=song.artist_url_name)
+                results = self._get_lyrics_from_url(
+                    song_name=song.name, artist_name=song.artist_url_name)
                 song.lyrics = self._filter_lyrics(results=results)
-                self.song_service.update_song_by_id(song_id=song.id,song_data={
-                    "lyrics":song.lyrics})
+                self.song_service.update_song_by_id(song_id=song.id, song_data={
+                    "lyrics": song.lyrics})
                 sleep(settings.SLEEP_TIMEOUT)
 
         except Exception:
-            logger.exception(f"Something happened while filling artist with id: {artist_id} lyrics.")
+            logger.exception(
+                f"Something happened while filling artist with id: {artist_id} lyrics.")
             return False
 
         logger.info(f"Artist id: {artist_id} lyrics filled.")

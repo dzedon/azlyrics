@@ -24,7 +24,7 @@ class AlbumService:
         Returns:
             A list of AlbumData objects.
         """
-        logging.info(f"Creating albums for artist with id: {artist_id}")
+        logger.info(f"Creating albums for artist with id: {artist_id}")
         new_albums = self.album_repository.create_multiple_albums(
             albums=albums, artist_id=artist_id
         )
@@ -37,7 +37,7 @@ class AlbumService:
         Returns:
             List of AlbumData objects.
         """
-        logging.info("Getting all albums")
+        logger.info("Getting all albums")
         albums = self.album_repository.get_albums()
 
         return albums
@@ -51,12 +51,12 @@ class AlbumService:
         Returns:
             AlbumSchema object.
         """
-        logging.info(f"Getting album with id: {album_id}")
+        logger.info(f"Getting album with id: {album_id}")
         album = self.album_repository.get_album_by_id(album_id=album_id)
 
         if not album:
             message = f"Song with id: {album_id} not found."
-            logging.info(message)
+            logger.info(message)
             raise Exception(message)
 
         return album
@@ -73,7 +73,7 @@ class AlbumService:
         """
         try:
 
-            logging.info(f"Retrieving albums filtered by: {filters}")
+            logger.info(f"Retrieving albums filtered by: {filters}")
 
             albums, count = self.album_repository.get_albums_filtered(filters=filters)
 

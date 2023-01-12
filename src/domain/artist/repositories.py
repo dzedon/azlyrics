@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, List
 
 from database.filtering import FILTER_MAP
 from database.repositories import OrmRepository
@@ -22,6 +22,7 @@ class ArtistRepository(OrmRepository):
             List of ArtistData objects.
         """
         try:
+
             new_artists = [Artist(name=artist.name, url_name=artist.url_name) for artist in artists]
 
             self.session.add_all(new_artists)
@@ -30,7 +31,7 @@ class ArtistRepository(OrmRepository):
             return [ArtistData.from_dict(artist.__dict__) for artist in artists]
 
         except Exception:
-            logging.exception("Something happened while creating multiple artists.")
+            logger.exception("Something happened while creating multiple artists.")
             return None
 
     def get_artists(self) -> Optional[list[ArtistData]]:
@@ -45,7 +46,7 @@ class ArtistRepository(OrmRepository):
             return [ArtistData.from_dict(artist.__dict__) for artist in artists]
 
         except Exception:
-            logging.exception("Something happened while retrieving artists.")
+            logger.exception("Something happened while retrieving artists.")
             return []
 
     def get_artist_by_id(self, artist_id: int) -> Optional[ArtistData]:
@@ -66,10 +67,10 @@ class ArtistRepository(OrmRepository):
             return ArtistData.from_dict(artist.__dict__)
 
         except Exception:
-            logging.exception(f"Something happened while retrieving artist by id: {artist_id}.")
+            logger.exception(f"Something happened while retrieving artist by id: {artist_id}.")
             return None
 
-    def get_artists_filtered(self, filters: ArtistFiltersData) -> [list[ArtistData], int]:
+    def get_artists_filtered(self, filters: ArtistFiltersData) -> [List[ArtistData], int]:
         """Retrieves artists filtered by params.
 
         Args:
@@ -97,5 +98,5 @@ class ArtistRepository(OrmRepository):
             return artists, artist_count
 
         except Exception:
-            logging.exception("Something happened while retrieving artists filtered.")
+            logger.exception("Something happened while retrieving artists filtered.")
             return []

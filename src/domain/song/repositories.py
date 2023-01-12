@@ -41,7 +41,7 @@ class SongRepository(OrmRepository):
             return new_songs
 
         except Exception:
-            logging.exception(
+            logger.exception(
                 "Something happened while creating multiple songs for album with id: {album_id}"
             )
             return None
@@ -58,7 +58,7 @@ class SongRepository(OrmRepository):
             return [SongData.from_dict(song.__dict__) for song in songs]
 
         except Exception:
-            logging.exception("Something happened while retrieving all songs.")
+            logger.exception("Something happened while retrieving all songs.")
             return None
 
     def get_songs_by_artist_id(self, artist_id: int) -> Optional[list[SongArtistData]]:
@@ -77,7 +77,7 @@ class SongRepository(OrmRepository):
                 .select_from(Song)
                 .join(Album, Album.id == Song.album_id)
                 .join(Artist, Artist.id == Album.artist_id)
-                .filter(Album.artist_id==artist_id)
+                .filter(Album.artist_id == artist_id)
                 .all()
             )
 
@@ -94,7 +94,8 @@ class SongRepository(OrmRepository):
             return songs
 
         except Exception:
-            logging.exception(f"Something happened while retrieving songs by artist id: {artist_id}.")
+            logger.exception(
+                f"Something happened while retrieving songs by artist id: {artist_id}.")
             return None
 
     def get_song_by_id(self, song_id: int) -> Optional[SongData]:
@@ -115,7 +116,7 @@ class SongRepository(OrmRepository):
             return SongData.from_dict(song.__dict__)
 
         except Exception:
-            logging.exception(f"Something happened while retrieving song by id: {song_id}.")
+            logger.exception(f"Something happened while retrieving song by id: {song_id}.")
             return None
 
     def get_songs_filtered(self, filters: list[SongFiltersData]) -> [list[SongData], int]:
@@ -146,7 +147,7 @@ class SongRepository(OrmRepository):
             return songs, song_count
 
         except Exception:
-            logging.exception("Something happened while retrieving songs filtered.")
+            logger.exception("Something happened while retrieving songs filtered.")
             return []
 
     def update_song_by_id(self, song_id: int, song_data: dict) -> Optional[int]:

@@ -23,7 +23,7 @@ class ArtistService:
         Returns:
             ArtistSchema object.
         """
-        logging.info("Creating multiple artists.")
+        logger.info("Creating multiple artists.")
         new_artists = self.artist_repository.create_multiple_artists(artists=artists)
 
         return new_artists
@@ -34,7 +34,7 @@ class ArtistService:
         Returns:
             artists: List of ArtistData objects.
         """
-        logging.info("Retrieving all artists.")
+        logger.info("Retrieving all artists.")
         artists = self.artist_repository.get_artists()
 
         return artists
@@ -48,12 +48,12 @@ class ArtistService:
         Returns:
             ArtistData object.
         """
-        logging.info(f"Retrieving artist by id: {artist_id}")
+        logger.info(f"Retrieving artist by id: {artist_id}")
         artist = self.artist_repository.get_artist_by_id(artist_id=artist_id)
 
         if not artist:
             message = f"Artist with id: {artist_id} not found."
-            logging.info(message)
+            logger.info(message)
             raise Exception(message)
 
         return artist
@@ -69,7 +69,7 @@ class ArtistService:
             count: total number of registers.
         """
         try:
-            logging.info(f"Retrieving artists filtered by: {filters}")
+            logger.info(f"Retrieving artists filtered by: {filters}")
 
             artists, count = self.artist_repository.get_artists_filtered(filters=filters)
 

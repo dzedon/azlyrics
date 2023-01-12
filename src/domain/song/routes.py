@@ -1,3 +1,5 @@
+import logging
+
 from flask import Blueprint, jsonify, request
 
 from domain.song.schemas import SongFiltersSchema, SongSchema
@@ -6,6 +8,7 @@ from utils.dependencies import song_repository
 
 song_blueprint = Blueprint("song", __name__)
 
+logger = logging.getLogger("SongRouter")
 
 @song_blueprint.route("/", methods=["GET"])
 def get_song():

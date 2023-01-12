@@ -33,7 +33,7 @@ class AlbumRepository(OrmRepository):
             return new_albums
 
         except Exception:
-            logging.exception("Something happened while creating multiple albums")
+            logger.exception("Something happened while creating multiple albums")
             return None
 
     def get_albums(self) -> Optional[list[AlbumSchema]]:
@@ -48,7 +48,7 @@ class AlbumRepository(OrmRepository):
             return [AlbumData.from_dict(album.__dict__) for album in albums]
 
         except Exception:
-            logging.exception("Something happened while retrieving all albums")
+            logger.exception("Something happened while retrieving all albums")
             return None
 
     def get_album_by_id(self, album_id: int) -> Optional[AlbumData]:
@@ -69,7 +69,7 @@ class AlbumRepository(OrmRepository):
             return AlbumData.from_dict(album.__dict__)
 
         except Exception:
-            logging.exception(f"Something happened while retrieving album with id: {album_id}")
+            logger.exception(f"Something happened while retrieving album with id: {album_id}")
             return None
 
     def get_albums_filtered(self, filters: list[AlbumFiltersData]):
@@ -100,5 +100,5 @@ class AlbumRepository(OrmRepository):
             return songs, album_count
 
         except Exception:
-            logging.exception("Something happened while retrieving albums filtered.")
+            logger.exception("Something happened while retrieving albums filtered.")
             return []

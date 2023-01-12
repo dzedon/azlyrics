@@ -1,3 +1,5 @@
+import logging
+
 from flask import Blueprint, jsonify, request
 
 from domain.album.services import AlbumService
@@ -9,11 +11,15 @@ from utils.dependencies import album_repository, artist_repository, song_reposit
 from settings import settings
 artist_blueprint = Blueprint("artist", __name__)
 
+logger = logging.getLogger("ArtistRouter")
 
 @artist_blueprint.route("/fill-database", methods=["POST"])
 def fill_artists():
     f"""Fill db with {settings.ARTISTS_MAX_LIMIT} artists."""
+
     payload = request.get_json()
+
+    logger.info(f"Filling artist for letter: {payload}.")
 
     artist_service = ArtistService(artist_repository=artist_repository)
     album_service = AlbumService(album_repository=album_repository)

@@ -24,7 +24,7 @@ class SongService:
         Returns:
             List of SongData objects.
         """
-        logging.info(f"Creating multiple songs for album with id: {album_id}")
+        logger.info(f"Creating multiple songs for album with id: {album_id}")
         new_songs = self.song_repository.create_multiple_songs(songs=songs, album_id=album_id)
 
         return new_songs
@@ -35,7 +35,7 @@ class SongService:
         Returns:
             songs: list of SongData objects.
         """
-        logging.info("Retrieving all songs.")
+        logger.info("Retrieving all songs.")
         songs = self.song_repository.get_songs()
 
         return songs
@@ -49,12 +49,12 @@ class SongService:
         Returns:
             SongData
         """
-        logging.info(f"Retrieving songs by artist id: {artist_id}")
+        logger.info(f"Retrieving songs by artist id: {artist_id}")
         songs = self.song_repository.get_songs_by_artist_id(artist_id=artist_id)
 
         if not songs:
             message = f"Songs for artist with id: {artist_id} not found."
-            logging.info(message)
+            logger.info(message)
             raise Exception(message)
 
         return songs
@@ -68,12 +68,12 @@ class SongService:
         Returns:
             song: SongData object.
         """
-        logging.info(f"Retrieving song with id: {song_id}")
+        logger.info(f"Retrieving song with id: {song_id}")
         song = self.song_repository.get_song_by_id(song_id=song_id)
 
         if not song:
             message = f"Song with id: {song_id} not found."
-            logging.info(message)
+            logger.info(message)
             raise Exception(message)
 
         return song
@@ -89,7 +89,7 @@ class SongService:
             count: total number of registers.
         """
         try:
-            logging.info(f"Retrieving songs filtered by: {filters}")
+            logger.info(f"Retrieving songs filtered by: {filters}")
 
             songs, count = self.song_repository.get_songs_filtered(filters=filters)
 
