@@ -12,26 +12,8 @@ from settings import settings
 
 logger = logging.getLogger("AZ_LYRICS")
 
-def init_db():
-    from domain.album.models import Album
-    from domain.artist.models import Artist
-    from domain.song.models import Song
 
-    meta = MetaData()
-
-    try:
-        logger.info("Creating tables again")
-        meta.create_all(engine)
-
-    except Exception:
-        logger.exception("Couldn't create db tables.")
-
-    logger.info("Db tables created successfully.")
-
-
-init_db()
 app = Flask(__name__)
-
 
 app.register_blueprint(blueprint=artist_blueprint, url_prefix="/artist")
 app.register_blueprint(blueprint=album_blueprint, url_prefix="/album")
@@ -43,8 +25,6 @@ def health():
     """Health check endpoint."""
     logger.info(f"Health check endpoint called on: {datetime.now()}.")
     return jsonify({"status": "ok", "timestamp": datetime.now()})
-
-
 
 
 if __name__ == "__main__":

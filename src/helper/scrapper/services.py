@@ -1,7 +1,8 @@
 import logging
 from re import search
-from typing import Any, List
+from typing import Any, List, Dict
 from time import sleep
+from itertools import starmap
 
 import requests
 from bs4 import BeautifulSoup
@@ -38,7 +39,7 @@ class ScrapperService:
         for element in results:
             yield element
 
-    def _artist_generator(self, artists_results: list) -> ArtistData:
+    def _artist_generator(self, artists_results: List) -> ArtistData:
         """Generator for the artists URL response.
 
         Args:
@@ -61,7 +62,19 @@ class ScrapperService:
 
                 yield ArtistData(url_name=url_name, name=artist_name)
 
-    def _filter_artists(self, artists_results: list) -> list[ArtistData]:
+    def _make_artist_dataclass(self, url_line: str) -> ArtistData:
+        """***."""
+        url_name = search("(?<=a\/).*?(?=\.html)", url_line)  # noqa: W605
+        artist_name = search("(?<=>).*?(?=<)", url_line)  # noqa: W605
+
+        if url_name and artist_name:
+            url_name = url_name.group()
+            artist_name = artist_name.group()
+
+            logger.info(f"Found artist {artist_name}.")
+            return ArtistData(url_name=url_name, name=artist_name)
+
+    def _filter_artists(self, artists_results: List) -> List[ArtistData]:
         """Clean the artist name.
 
         Args:
@@ -73,15 +86,17 @@ class ScrapperService:
         logger.info("Filtering artists")
         artists_list = []
 
-        # TODO: replace this with itertools module
-        for artist in self._artist_generator(artists_results=artists_results):
+        for artist in starmap(self._make_artist_dataclass(), artists_results)
             artists_list.append(artist)
+            
+        # for artist in self._artist_generator(artists_results=artists_results):
+            # artists_list.append(artist)
 
             if len(artists_list) == settings.ARTISTS_MAX_LIMIT:
                 logger.info(f"Found {settings.ARTISTS_MAX_LIMIT} artists.")
                 return artists_list
 
-    def _filter_artist_albums_and_songs(self, results: list, artist_name: str) -> dict:
+    def _filter_artist_albums_and_songs(self, results: List, artist_name: str) -> Dict:
         """Filter the artist albums and songs from the web page.
 
         Args:
@@ -119,7 +134,7 @@ class ScrapperService:
 
         return artist_albums
 
-    def _get_artist_albums_and_songs_from_url(self, artist: ArtistData) -> list:
+    def _get_artist_albums_and_songs_from_url(self, artist: ArtistData) -> List:
         """Retrieve all the artist albums and songs from the web page.
 
         Args:
@@ -143,7 +158,7 @@ class ScrapperService:
 
         return [str(element) for line in artist_items for element in line]
 
-    def _get_artist_from_url(self, artist_letter: str) -> list:
+    def _get_artist_from_url(self, artist_letter: str) -> List:
         """Retrieve all the artists from the web page.
 
         Args:
@@ -155,15 +170,21 @@ class ScrapperService:
         logger.info("Retrieving artists from url")
         az_url = settings.AZLYRICS_URL.format(artist_letter)
 
-        url_response = requests.get(url=az_url)
-        
+        url_response = requests.get(
+            url=az_url, timeout=settings.REQUEST_TIMEOUT
+        )
+
+        if url_response.status_code != 200:
+            logger.info("Failed to call AZlyrics URL.")
+            return []
+
         soup = BeautifulSoup(markup=url_response.content, features="html.parser")
 
         artists_web = soup.find_all(name="div", class_="col-sm-6 text-center artist-col")
 
         return [str(element) for line in artists_web for element in line]
 
-    def _filter_lyrics(self, results: list) -> str:
+    def _filter_lyrics(self, results: List) -> str:
         """Filter URL results to only leave the song lyrics.
 
         Args:
@@ -201,7 +222,7 @@ class ScrapperService:
         logger.info("HTML scrapped successfully.")
         return [str(element) for line in song_lyrics for element in line]
 
-    def _remove_multiple_songs_from_songs_list(self, songs: list) -> list:
+    def _remove_multiple_songs_from_songs_list(self, songs: List) -> List:
         """***."""
         # TODO: TEMP.
         logger.info("Removing multiple records.")

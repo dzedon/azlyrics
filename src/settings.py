@@ -25,6 +25,7 @@ class Settings:
     SONGS_MAX_LIMIT: int = 5
     ARTISTS_MAX_LIMIT: int = 5
     SLEEP_TIMEOUT: int = 20
+    REQUEST_TIMEOUT: int = 60
 
 
 settings = Settings()
