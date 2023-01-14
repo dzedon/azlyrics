@@ -1,6 +1,6 @@
 import logging
 from re import search
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Tuple, Optional
 from time import sleep
 from itertools import starmap
 
@@ -27,53 +27,6 @@ class ScrapperService:
         self.album_service = album_service
         self.song_service = song_service
 
-    def _albums_and_songs_generator(self, results: List) -> Any:
-        """Generator for the albums and songs URL response.
-
-        Args:
-            results: list with all the albums and songs web page data.
-
-        Yields:
-            ArtistSchema object.
-        """
-        for element in results:
-            yield element
-
-    def _artist_generator(self, artists_results: List) -> ArtistData:
-        """Generator for the artists URL response.
-
-        Args:
-            artists_results: list with all the artists web page data.
-
-        Yields:
-            ArtistData object.
-        """
-        # TODO: Chech Single Responsability Principle
-        for artist in artists_results:
-
-            url_name = search("(?<=a\/).*?(?=\.html)", artist)  # noqa: W605
-            artist_name = search("(?<=>).*?(?=<)", artist)  # noqa: W605
-
-            if url_name and artist_name:
-                url_name = url_name.group()
-                artist_name = artist_name.group()
-
-                logger.info(f"Found artist {artist_name}.")
-
-                yield ArtistData(url_name=url_name, name=artist_name)
-
-    def _make_artist_dataclass(self, url_line: str) -> ArtistData:
-        """***."""
-        url_name = search("(?<=a\/).*?(?=\.html)", url_line)  # noqa: W605
-        artist_name = search("(?<=>).*?(?=<)", url_line)  # noqa: W605
-
-        if url_name and artist_name:
-            url_name = url_name.group()
-            artist_name = artist_name.group()
-
-            logger.info(f"Found artist {artist_name}.")
-            return ArtistData(url_name=url_name, name=artist_name)
-
     def _filter_artists(self, artists_results: List) -> List[ArtistData]:
         """Clean the artist name.
 
@@ -86,15 +39,22 @@ class ScrapperService:
         logger.info("Filtering artists")
         artists_list = []
 
-        for artist in starmap(self._make_artist_dataclass(), artists_results)
-            artists_list.append(artist)
-            
-        # for artist in self._artist_generator(artists_results=artists_results):
-            # artists_list.append(artist)
+        for line in iter(artists_results):
 
             if len(artists_list) == settings.ARTISTS_MAX_LIMIT:
-                logger.info(f"Found {settings.ARTISTS_MAX_LIMIT} artists.")
-                return artists_list
+                logger.info(f"Max number: {settings.ARTISTS_MAX_LIMIT} of artists acquired.")
+                break
+
+            url_name = search("(?<=a\/).*?(?=\.html)", line)  # noqa: W605
+            artist_name = search("(?<=>).*?(?=<)", line)  # noqa: W605
+
+            if url_name and artist_name:
+                url_name = url_name.group()
+                artist_name = artist_name.group()
+                logger.info(f"Found artist {artist_name}.")
+                artists_list.append(ArtistData(url_name=url_name, name=artist_name))
+
+        return artists_list
 
     def _filter_artist_albums_and_songs(self, results: List, artist_name: str) -> Dict:
         """Filter the artist albums and songs from the web page.
@@ -110,11 +70,11 @@ class ScrapperService:
 
         artist_albums = {}
         album_name = ""
-        for line in self._albums_and_songs_generator(results=results):
+        for line in iter(results):
 
             album = search('(?<=b>").*?(?="<\/b>)', line)  # noqa: W605
             if album:
-                logger.info("Found an album.")
+                logger.info(f"Found album: {album}.")
                 album_name = album.group()
                 artist_albums[album_name] = []
 
@@ -129,10 +89,23 @@ class ScrapperService:
 
             song = search(f"(?<={artist_name}\/).*?(?=\.html)", line)  # noqa: W605
             if song:
-                logger.info("Found a song.")
+                logger.info(f"Found song: {song}.")
                 artist_albums.get(album_name).append(song.group())
 
         return artist_albums
+
+    def _filter_artist_song_lyrics(self, results: List) -> str:
+        """Filter URL results to only leave the song lyrics.
+
+        Args:
+            results: results.
+
+        Returns:
+            Complete lyric as a string.
+        """
+        results = [res for res in results if res.startswith('\n')]
+
+        return "".join(results)
 
     def _get_artist_albums_and_songs_from_url(self, artist: ArtistData) -> List:
         """Retrieve all the artist albums and songs from the web page.
@@ -182,22 +155,10 @@ class ScrapperService:
 
         artists_web = soup.find_all(name="div", class_="col-sm-6 text-center artist-col")
 
+        logger.info("URL returned.")
         return [str(element) for line in artists_web for element in line]
 
-    def _filter_lyrics(self, results: List) -> str:
-        """Filter URL results to only leave the song lyrics.
-
-        Args:
-            results: results.
-
-        Returns:
-            Complete lyric as a string.
-        """
-        results = [res for res in results if res.startswith('\n')]
-
-        return "".join(results)
-
-    def _get_lyrics_from_url(self, song_name: str, artist_name: str):
+    def _get_artist_lyrics_from_url(self, song_name: str, artist_name: str):
         """***."""
         # TODO: needs to be refactored.
         logger.info(f"Constructing URL for song: {song_name} from artist: {artist_name}.")
@@ -321,11 +282,12 @@ class ScrapperService:
 
             # TODO: refactor
             for song in songs:
-                results = self._get_lyrics_from_url(
+                results = self._get_artist_lyrics_from_url(
                     song_name=song.name, artist_name=song.artist_url_name)
-                song.lyrics = self._filter_lyrics(results=results)
-                self.song_service.update_song_by_id(song_id=song.id, song_data={
-                    "lyrics": song.lyrics})
+                song.lyrics = self._filter_artist_song_lyrics(results=results)
+                self.song_service.update_song_by_id(
+                    song_id=song.id, song_data={"lyrics": song.lyrics}
+                )
                 sleep(settings.SLEEP_TIMEOUT)
 
         except Exception:

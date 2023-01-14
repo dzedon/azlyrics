@@ -18,8 +18,7 @@ def fill_artists():
     f"""Fill db with {settings.ARTISTS_MAX_LIMIT} artists."""
 
     payload = request.get_json()
-
-    logger.info(f"Filling artist for letter: {payload}.")
+    logger.info(f"Filling artist for letter: {payload.get('search_letter')}.")
 
     artist_service = ArtistService(artist_repository=artist_repository)
     album_service = AlbumService(album_repository=album_repository)
