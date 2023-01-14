@@ -1,6 +1,6 @@
 import logging
 from re import search
-from typing import Any
+from typing import Any, List
 from time import sleep
 
 import requests
@@ -26,7 +26,7 @@ class ScrapperService:
         self.album_service = album_service
         self.song_service = song_service
 
-    def _albums_and_songs_generator(self, results: list) -> Any:
+    def _albums_and_songs_generator(self, results: List) -> Any:
         """Generator for the albums and songs URL response.
 
         Args:
@@ -72,6 +72,8 @@ class ScrapperService:
         """
         logger.info("Filtering artists")
         artists_list = []
+
+        # TODO: replace this with itertools module
         for artist in self._artist_generator(artists_results=artists_results):
             artists_list.append(artist)
 

@@ -12,7 +12,7 @@ logger = logging.getLogger("ArtistRepository")
 class ArtistRepository(OrmRepository):
     """Repository to manage Artist objects."""
 
-    def create_multiple_artists(self, artists: list) -> Optional[list[ArtistData]]:
+    def create_multiple_artists(self, artists: List) -> Optional[List[ArtistData]]:
         """Creates multiple artists registers.
 
         Args:

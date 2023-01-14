@@ -54,6 +54,7 @@ def fill_artist_items(artist_id):
 @artist_blueprint.route("/<int:artist_id>/fill-lyrics", methods=["POST"])
 def fill_artist_lyrics(artist_id):
     """Fill artist's songs with their lyrics."""
+    logger.info(f"Filling lyrics for artist id: {artist_id}")
     artist_service = ArtistService(artist_repository=artist_repository)
     album_service = AlbumService(album_repository=album_repository)
     song_service = SongService(song_repository=song_repository)
@@ -70,6 +71,7 @@ def fill_artist_lyrics(artist_id):
 @artist_blueprint.route("", methods=["GET"])
 def get_artists():
     """Retrieve all artists in the database."""
+    logger.info("Retrieving all artists.")
     artists_service = ArtistService(artist_repository=artist_repository)
 
     artists = artists_service.get_artists()
@@ -81,6 +83,7 @@ def get_artists():
 @artist_blueprint.route("/<int:artist_id>", methods=["GET"])
 def get_artist_by_id(artist_id):
     """Retrieve an artist by its id."""
+    logger.info(f"Retrieving artist by id: {artist_id}")
     artists_service = ArtistService(artist_repository=artist_repository)
 
     artist = artists_service.get_artist_by_id(artist_id=artist_id)
@@ -93,6 +96,7 @@ def get_artist_by_id(artist_id):
 def get_filtered_artists():
     """Retrieve artists filtered by a search field."""
     filters = ArtistFiltersSchema().load(request.args)
+    logger.info(f"Retrieving artists filtered by: {filters}")
 
     artists_service = ArtistService(artist_repository=artist_repository)
 

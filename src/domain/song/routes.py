@@ -13,6 +13,7 @@ logger = logging.getLogger("SongRouter")
 @song_blueprint.route("/", methods=["GET"])
 def get_song():
     """Retrieve all songs."""
+    logger.info("Retrieving songs.")
     song_service = SongService(song_repository)
 
     songs = song_service.get_songs()
@@ -24,6 +25,7 @@ def get_song():
 @song_blueprint.route("/<int:song_id>", methods=["GET"])
 def get_song_by_id(song_id):
     """Retrieve a song by its id."""
+    logger.info(f"Retrieving song by id: {song_id}")
     song_service = SongService(song_repository)
 
     song = song_service.get_song_by_id(song_id)
@@ -36,6 +38,8 @@ def get_song_by_id(song_id):
 def get_filtered_songs():
     """Retrieve songs filtered by a search field."""
     filters = SongFiltersSchema().load(request.args)
+
+    logger.info(f"Retrieving songs filtered by: {filters}")
 
     song_service = SongService(song_repository)
 

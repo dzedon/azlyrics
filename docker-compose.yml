@@ -5,7 +5,7 @@ services:
     container_name: azlyrics
     build:
         context: .
-        dockerfile: Dockerfile
+        dockerfile: docker/Dockerfile
     volumes:
       - ./src:/usr/src
     ports:
@@ -33,10 +33,10 @@ services:
   lyrics_db:
     container_name: lyrics_db
     build:
-      dockerfile: Database.Dockerfile
+      dockerfile: docker/Database.Dockerfile
     restart: always
     ports:
-      - "5000:5432"
+      - "5050:5432"
     volumes:
           - ~/Documents/lyrics_db/.pgdata:/var/lib/postgresql/data
     environment:

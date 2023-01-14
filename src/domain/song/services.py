@@ -14,7 +14,7 @@ class SongService:
         """Initializes the service."""
         self.song_repository = song_repository
 
-    def create_multiple_songs(self, songs: list, album_id: int) -> Optional[list[SongData]]:
+    def create_multiple_songs(self, songs: List, album_id: int) -> Optional[List[SongData]]:
         """Creates multiple songs registers.
 
         Args:

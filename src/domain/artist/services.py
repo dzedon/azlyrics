@@ -26,6 +26,11 @@ class ArtistService:
         logger.info("Creating multiple artists.")
         new_artists = self.artist_repository.create_multiple_artists(artists=artists)
 
+        if not artists:
+            logger.info("Couldn't create multiple artists.")
+            return new_artists
+
+        logger.info("Multiple artists created successfully.")
         return new_artists
 
     def get_artists(self) -> [Optional[ArtistData]]:

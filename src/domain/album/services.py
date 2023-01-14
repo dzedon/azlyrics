@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, List
 
 from domain.album.data import AlbumData, AlbumFiltersData
 from domain.album.repositories import AlbumRepository
@@ -14,7 +14,7 @@ class AlbumService:
         """Initializes AlbumService."""
         self.album_repository = album_repository
 
-    def create_multiple_albums(self, albums: list, artist_id: int) -> Optional[list[AlbumData]]:
+    def create_multiple_albums(self, albums: List, artist_id: int) -> Optional[List[AlbumData]]:
         """Creates multiple albums registers.
 
         Args:

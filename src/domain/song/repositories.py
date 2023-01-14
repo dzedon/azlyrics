@@ -16,7 +16,7 @@ logger = logging.getLogger("SongRepository")
 class SongRepository(OrmRepository):
     """Song repository."""
 
-    def create_multiple_songs(self, songs: list, album_id: int) -> Optional[list[SongData]]:
+    def create_multiple_songs(self, songs: List, album_id: int) -> Optional[List[SongData]]:
         """Create multiple songs registers.
 
         Args:
